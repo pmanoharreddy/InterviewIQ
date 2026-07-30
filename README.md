@@ -196,6 +196,6 @@ CLIENT_URL=http://localhost:5173
 
 **P Manohar Reddy**
 
-GitHub: [https://github.com/yourusername](https://github.com/pmanoharreddy)
+GitHub: (https://github.com/pmanoharreddy)
 
-LinkedIn: [https://linkedin.com/in/yourprofile](https://www.linkedin.com/in/manoharreddy1/)
+LinkedIn: (https://www.linkedin.com/in/manoharreddy1/)
