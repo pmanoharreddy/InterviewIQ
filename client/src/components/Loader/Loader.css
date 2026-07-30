@@ -1,0 +1,45 @@
+.loader-container{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(255,255,255,.9);
+    z-index:9999;
+}
+
+.loader-card{
+    text-align:center;
+}
+
+.spinner{
+    width:70px;
+    height:70px;
+    border:7px solid #ddd;
+    border-top:7px solid #4f46e5;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:auto;
+}
+
+.loader-card h2{
+    margin-top:25px;
+    color:#4f46e5;
+}
+
+.loader-card p{
+    margin-top:10px;
+    color:#555;
+}
+
+@keyframes spin{
+    from{
+        transform:rotate(0deg);
+    }
+    to{
+        transform:rotate(360deg);
+    }
+}
