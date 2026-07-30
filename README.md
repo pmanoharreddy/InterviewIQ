@@ -8,9 +8,9 @@ Users can create a customized interview, answer AI-generated questions, receive 
 
 ## Live Demo
 
-Frontend: https://your-vercel-link.vercel.app
+Frontend: [https://your-vercel-link.vercel.app](https://interviewiq-mu.vercel.app/)
 
-Backend API: https://your-render-link.onrender.com
+Backend API: [https://your-render-link.onrender.com](https://interviewiq-nzf2.onrender.com)
 
 ---
 
