@@ -23,7 +23,7 @@ function InterviewSession() {
     const [answer, setAnswer] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState(firstQuestion);
 
-    const [questionNumber, setQuestionNumber] = useState(1);
+    const [questionNumber, setQuestionNumber] = useState(10);
 
     const [conversation, setConversation] = useState([]);
 
