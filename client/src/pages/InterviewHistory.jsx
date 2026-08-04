@@ -79,24 +79,29 @@ function InterviewHistory() {
 
                                 <div>
 
-                                    <h2>{interview.role}</h2>
+                                    <h2>
+    {interview.role || `${interview.interviewType} Interview`}
+</h2>
 
-                                    <p>
-                                        <strong>Experience:</strong>{" "}
-                                        {interview.experience}
-                                    </p>
+<p>
+    <strong>Interview Type:</strong>{" "}
+    {interview.interviewType}
+</p>
 
-                                    <p>
-                                        <strong>Difficulty:</strong>{" "}
-                                        {interview.difficulty}
-                                    </p>
+<p>
+    <strong>Experience:</strong>{" "}
+    {interview.experience}
+</p>
 
-                                    <p>
-                                        <strong>Date:</strong>{" "}
-                                        {new Date(
-                                            interview.createdAt
-                                        ).toLocaleDateString()}
-                                    </p>
+<p>
+    <strong>Difficulty:</strong>{" "}
+    {interview.difficulty}
+</p>
+
+<p>
+    <strong>Date:</strong>{" "}
+    {new Date(interview.createdAt).toLocaleDateString()}
+</p>
 
                                 </div>
 
