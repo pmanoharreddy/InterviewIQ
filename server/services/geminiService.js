@@ -30,38 +30,49 @@ function parseGeminiJSON(text) {
     }
 }
 
-async function generateGeminiResponse(prompt, expectJSON = false) {
-
+async function generateGeminiResponse(
+    prompt,
+    expectJSON = false,
+    temperature = 0.7
+) {
     for (let attempt = 1; attempt <= 3; attempt++) {
-
         try {
 
             const response = await ai.models.generateContent({
                 model: MODEL,
                 contents: prompt,
                 config: {
-                    temperature: 0.7,
-                    maxOutputTokens: 600,
+                    temperature,
+                    maxOutputTokens: 1000,
                 },
             });
 
             const text = response.text.trim();
 
-            return expectJSON
-                ? parseGeminiJSON(text)
-                : text.replace(/```/g, "").trim();
+            // Debugging
+            console.log("\n========== GEMINI RESPONSE ==========");
+            console.log(text);
+            console.log("=====================================\n");
 
-        }
+            if (expectJSON) {
+                return parseGeminiJSON(text);
+            }
 
-        catch (err) {
+            return text
+                .replace(/```json/g, "")
+                .replace(/```/g, "")
+                .replace(/^#+\s*/gm, "")
+                .trim();
 
-            if (attempt === 3)
+        } catch (err) {
+
+            console.error(`Gemini attempt ${attempt} failed.`);
+
+            if (attempt === 3) {
                 throw err;
-
+            }
         }
-
     }
-
 }
 
 async function generateInterviewQuestion(
@@ -105,26 +116,31 @@ else if (interviewType === "DSA") {
     prompt = `
 You are an experienced FAANG software engineer conducting a live coding interview.
 
-Generate ONLY ONE coding interview question.
+Generate EXACTLY ONE complete coding interview problem.
 
 Difficulty: ${difficulty}
 Experience: ${experience}
 
-Rules:
+Requirements:
 
-- The question should be similar to those asked in Google, Meta, Amazon, Microsoft, Atlassian or D. E. Shaw interviews.
-- The problem may belong to Arrays, Strings, Trees, Graphs, DP, Greedy, Heap, Binary Search, Sliding Window or any DSA topic.
-- Do NOT mention the topic.
-- Do NOT include a title.
+- The question should resemble Google, Meta, Amazon, Microsoft, Atlassian or D. E. Shaw interviews.
+- The problem can belong to any DSA topic.
+- Write ONE complete problem statement.
+- Clearly describe the task.
+- Clearly explain what needs to be computed.
+- Include all necessary conditions for understanding the problem.
 - Do NOT include examples.
 - Do NOT include constraints.
-- Do NOT include input/output format.
 - Do NOT include hints.
 - Do NOT include the solution.
+- Do NOT include a title.
 - Do NOT use markdown.
-- Do NOT use headings.
-- Keep the question under 120 words.
-- Return ONLY the interview question exactly as an interviewer would speak it.
+- Keep the problem between 80 and 150 words.
+
+Return ONLY the complete problem statement.
+Do NOT greet the candidate.
+Do NOT say "Let's begin" or "Here's your first problem."
+Do NOT stop after one or two sentences.
 `;
 
 }
@@ -167,6 +183,10 @@ Rules:
 - Return only the question.
 `;
 
+}
+
+if (interviewType === "DSA") {
+    return await generateGeminiResponse(prompt, false, 0.4);
 }
 
 return await generateGeminiResponse(prompt);
