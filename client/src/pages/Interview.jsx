@@ -58,26 +58,28 @@ function Interview() {
 
         try {
 
-            const response = await axios.post(
-                `${API_URL}/api/interview/start`,
-                formData,
-                {
-                    withCredentials: true,
-                }
-            );
+    console.log("Sending:", formData);
 
-            navigate("/interview/session", {
-                state: {
-                    firstQuestion: response.data.question,
-                    ...formData,
-                },
-            });
-
-        } catch (err) {
-
-            console.log(err.response?.data || err.message);
-
+    const response = await axios.post(
+        `${API_URL}/api/interview/start`,
+        formData,
+        {
+            withCredentials: true,
         }
+    );
+
+    navigate("/interview/session", {
+        state: {
+            firstQuestion: response.data.question,
+            ...formData,
+        },
+    });
+
+} catch (err) {
+
+    console.log(err.response?.data || err.message);
+
+}
 
     };
 
