@@ -9,20 +9,31 @@ const MODEL = "gemini-flash-latest";
 
 // Helper to safely parse Gemini JSON responses
 function parseGeminiJSON(text) {
-    return JSON.parse(
-        text
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
-            .trim()
-    );
+    try {
+        return JSON.parse(
+            text
+                .replace(/```json/g, "")
+                .replace(/```/g, "")
+                .trim()
+        );
+    } catch (error) {
+        console.error("Failed to parse Gemini response:");
+        console.error(text);
+        throw new Error("Invalid JSON returned by Gemini.");
+    }
 }
 
 async function generateInterviewQuestion(
+    interviewType,
     role,
     experience,
     difficulty
 ) {
-    const prompt = `
+    let prompt = "";
+
+if (interviewType === "Technical") {
+
+    prompt = `
 You are an expert software engineering interviewer.
 
 Generate ONLY ONE interview question.
@@ -32,23 +43,101 @@ Experience: ${experience}
 Difficulty: ${difficulty}
 
 Rules:
-- Ask only one question.
-- Do not include the answer.
-- Do not include explanations.
+
+- Ask ONE technical interview question.
+- Questions should be related to:
+  - Operating Systems
+  - DBMS
+  - OOP
+  - Computer Networks
+  - Software Engineering
+  - Role-specific technologies
+- Do NOT ask DSA or coding questions.
+- Do NOT include the answer.
 - Return only the question.
 `;
+
+}
+
+else if (interviewType === "DSA") {
+
+    prompt = `
+You are an experienced FAANG software engineer conducting a DSA interview.
+
+Generate ONE coding interview question.
+
+Difficulty: ${difficulty}
+Experience: ${experience}
+
+Rules:
+
+- The problem should be similar to questions asked in FAANG or top product companies.
+- The problem may come from Arrays, Strings, Trees, Graphs, DP, Greedy, Heap, Binary Search, Sliding Window or any DSA topic.
+- Do NOT reveal the topic.
+- Do NOT provide hints.
+- Do NOT provide the solution.
+- Return only the problem statement.
+- The question should require algorithmic thinking rather than programming language syntax.
+`;
+
+}
+
+else if (interviewType === "HR") {
+
+    prompt = `
+You are an HR interviewer.
+
+Generate ONE behavioural HR interview question.
+
+Difficulty: ${difficulty}
+
+Ask realistic HR questions commonly asked during software engineering placements.
+
+Return only the question.
+`;
+
+}
+
+else {
+
+    prompt = `
+You are a resume interviewer.
+
+Generate ONE resume-based interview question based on the candidate's projects, internships, technologies, achievements, or experiences.
+
+Experience: ${experience}
+
+Rules:
+- Ask only ONE question.
+- Focus on:
+  - Projects
+  - Internships
+  - Technologies used
+  - Achievements
+  - Design decisions
+  - Challenges faced
+- Do not ask HR or DSA questions.
+- Return only the question.
+`;
+
+}
 
     const response = await ai.models.generateContent({
         model: MODEL,
         contents: prompt,
     });
 
-    return response.text;
+    return response.text.trim();
 }
 
 async function generateFollowUpQuestion(
+
+    interviewType,
+
     role,
+
     experience,
+
     difficulty,
     currentQuestion,
     answer,
@@ -65,10 +154,17 @@ Candidate: ${item.answer}
         .join("\n");
 
     const prompt = `
-You are conducting a realistic software engineering interview.
+${interviewType === "DSA"
+? "You are conducting a realistic FAANG DSA interview."
+: interviewType === "HR"
+? "You are conducting a realistic HR interview."
+: interviewType === "Resume"
+? "You are conducting a realistic resume interview."
+: "You are conducting a realistic software engineering interview."
+}
 
 Candidate:
-Role: ${role}
+${interviewType === "Technical" ? `Role: ${role}\n` : ""}
 Experience: ${experience}
 Difficulty: ${difficulty}
 
@@ -113,10 +209,23 @@ Use NEXT_QUESTION when:
 - Further questioning would become repetitive.
 
 When choosing NEXT_QUESTION:
-- Generate a new interview question.
-- Keep it relevant to the candidate's role.
-- Match the requested difficulty and experience.
-- Avoid repeating topics already sufficiently covered.
+
+If interviewType is Technical:
+- Ask another technical interview question relevant to the selected role.
+
+If interviewType is DSA:
+- Ask another coding question of the requested difficulty.
+
+If interviewType is HR:
+- Ask another HR interview question.
+
+If interviewType is Resume:
+- Ask another resume-based question.
+
+Rules:
+- Match the selected difficulty.
+- Avoid repeating previously covered concepts.
+- Ask only ONE new question.
 
 3. END_INTERVIEW
 
@@ -149,7 +258,30 @@ QUESTION NUMBER RULES:
 
 - NEVER generate an 11th main question.
 
-Return ONLY valid JSON.
+The follow-up question must match the interview type.
+
+Technical:
+- Ask about concepts, design choices, trade-offs, real-world usage or implementation.
+- Ask practical interview-style follow-up questions.
+
+DSA:
+- Ask whether a brute-force solution exists.
+- Ask how the solution can be optimized.
+- Ask for time complexity.
+- Ask for space complexity.
+- Ask about edge cases.
+- Ask about alternative approaches if applicable.
+- Ask implementation details only if they help evaluate the candidate.
+
+HR:
+- Ask behavioural or situational follow-up questions only.
+
+Resume:
+- Ask deeper questions about projects, technologies, internships or achievements mentioned.
+
+Do not wrap the response in markdown.
+Do not use triple backticks.
+Return ONLY a valid JSON object.
 
 For a follow-up:
 
@@ -178,9 +310,15 @@ When the interview is complete:
         contents: prompt,
     });
 
-    return parseGeminiJSON(response.text);
+    return parseGeminiJSON(response.text.trim());
 }
-async function generateInterviewEvaluation(conversation = []) {
+async function generateInterviewEvaluation(
+
+    conversation=[],
+
+    interviewType="Technical"
+
+){
     const conversationHistory = conversation
         .map(
             (item, index) => `
@@ -194,7 +332,7 @@ ${item.answer}
         .join("\n");
 
     const prompt = `
-You are an expert Senior Software Engineering Interviewer.
+You are an expert ${interviewType} interviewer.
 
 Evaluate the candidate's interview performance based ONLY on the interview conversation below.
 
@@ -208,15 +346,36 @@ Score the candidate fairly.
 
 Consider:
 
+If Technical:
+
 - Technical knowledge
-- Problem-solving ability
-- Communication skills
+- Problem solving
+- Communication
+
+If DSA:
+
+- Correctness
+- Algorithm choice
+- Optimization
+- Time complexity
+- Space complexity
+- Edge cases
+- Communication
+
+If HR:
+
 - Confidence
-- Completeness of answers
-- Accuracy
-- Ability to explain concepts
-- Handling of edge cases
-- Optimization discussions
+- Communication
+- Behaviour
+- Professionalism
+
+If Resume:
+
+- Resume understanding
+- Project knowledge
+- Communication
+- Confidence
+- Ability to explain projects
 
 Do NOT give perfect scores unless truly deserved.
 
@@ -258,7 +417,9 @@ Rules:
 - Keep strengths to exactly 3 items.
 - Keep improvements to exactly 3 items.
 - Feedback should be between 80 and 150 words.
-- Return ONLY JSON.
+- Do not wrap the response in markdown.
+- Do not use triple backticks.
+- Return ONLY valid JSON.
 `;
 
     const response = await ai.models.generateContent({
@@ -266,7 +427,7 @@ Rules:
         contents: prompt,
     });
 
-    return parseGeminiJSON(response.text);
+    return parseGeminiJSON(response.text.trim());
 }
 
 module.exports = {

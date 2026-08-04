@@ -8,10 +8,22 @@ const interviewSchema = new mongoose.Schema(
             required: true,
         },
 
-        role: {
+        interviewType: {
             type: String,
             required: true,
+            enum: ["Technical", "DSA", "HR", "Resume"],
+        },
+
+        role: {
+            type: String,
             trim: true,
+            default: "",
+        },
+
+        topic: {
+            type: String,
+            trim: true,
+            default: "",
         },
 
         experience: {

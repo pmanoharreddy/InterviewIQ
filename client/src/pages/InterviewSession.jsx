@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./InterviewSession.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader/Loader";
+import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -12,7 +13,9 @@ function InterviewSession() {
 
     const {
         firstQuestion,
+        interviewType,
         role,
+        topic,
         experience,
         difficulty,
     } = location.state || {};
@@ -20,7 +23,7 @@ function InterviewSession() {
     const [answer, setAnswer] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState(firstQuestion);
 
-    const [questionNumber, setQuestionNumber] = useState(10);
+    const [questionNumber, setQuestionNumber] = useState(1);
 
     const [conversation, setConversation] = useState([]);
 
@@ -36,38 +39,25 @@ function InterviewSession() {
             setLoading(true);
             setLoadingMessage("Analyzing your answer...");
 
-            const response = await fetch(
+            const response = await axios.post(
                 `${API_URL}/api/interview/answer`,
                 {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-
-                    credentials: "include",
-
-                    body: JSON.stringify({
-                        currentQuestion,
-                        answer,
-                        conversation,
-                        role,
-                        experience,
-                        difficulty,
-                        questionNumber,
-                    }),
+                    currentQuestion,
+                    answer,
+                    conversation,
+                    interviewType,
+                    role,
+                    topic,
+                    experience,
+                    difficulty,
+                    questionNumber,
+                },
+                {
+                    withCredentials: true,
                 }
             );
 
-            const data = await response.json();
-
-            console.log("Backend response:", data);
-
-            if (!response.ok) {
-                setLoading(false);
-                console.error(data.message);
-                return;
-            }
+            const data = response.data;
 
             const updatedConversation = [
                 ...conversation,
@@ -83,33 +73,22 @@ function InterviewSession() {
 
                 setLoadingMessage("Evaluating your interview...");
 
-                const evaluationResponse = await fetch(
+                const evaluationResponse = await axios.post(
                     `${API_URL}/api/interview/evaluate`,
                     {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-
-                        credentials: "include",
-
-                        body: JSON.stringify({
-                            role,
-                            experience,
-                            difficulty,
-                            conversation: updatedConversation,
-                        }),
+                        interviewType,
+                        role,
+                        topic,
+                        experience,
+                        difficulty,
+                        conversation: updatedConversation,
+                    },
+                    {
+                        withCredentials: true,
                     }
                 );
 
-                const evaluationData = await evaluationResponse.json();
-
-                if (!evaluationResponse.ok) {
-                    setLoading(false);
-                    console.error(evaluationData.message);
-                    return;
-                }
+                const evaluationData = evaluationResponse.data;
 
                 setLoading(false);
 
@@ -136,16 +115,20 @@ function InterviewSession() {
 
             setLoading(false);
 
-            console.error("Error submitting answer:", error);
+            if (error.response) {
+                console.error(error.response.data.message);
+                alert(error.response.data.message);
+            } else {
+                console.error(error.message);
+                alert("Something went wrong.");
+            }
 
         }
 
     };
 
     if (loading) {
-        return (
-            <Loader message={loadingMessage} />
-        );
+        return <Loader message={loadingMessage} />;
     }
 
     return (
@@ -167,8 +150,20 @@ function InterviewSession() {
                 <div className="details">
 
                     <p>
-                        <strong>Role:</strong> {role}
+                        <strong>Interview Type:</strong> {interviewType}
                     </p>
+
+                    {interviewType === "Technical" && (
+                        <p>
+                            <strong>Role:</strong> {role}
+                        </p>
+                    )}
+
+                    {interviewType === "DSA" && (
+                        <p>
+                            <strong>Topic:</strong> {topic || "Mixed"}
+                        </p>
+                    )}
 
                     <p>
                         <strong>Experience:</strong> {experience}

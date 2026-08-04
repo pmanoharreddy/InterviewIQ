@@ -7,16 +7,29 @@ const Interview = require("../models/Interview");
 
 exports.startInterview = async (req, res) => {
     try {
-        const { role, experience, difficulty } = req.body;
+        const {
+            interviewType,
+            role,
+            experience,
+            difficulty
+        } = req.body;
 
-        if (!role || !experience || !difficulty) {
+        if (!interviewType || !experience || !difficulty) {
             return res.status(400).json({
                 success: false,
-                message: "All fields are required",
+                message: "Please fill all required fields.",
+            });
+        }
+
+        if (interviewType === "Technical" && !role) {
+            return res.status(400).json({
+                success: false,
+                message: "Role is required for Technical Interview.",
             });
         }
 
         const question = await generateInterviewQuestion(
+            interviewType,
             role,
             experience,
             difficulty
@@ -52,10 +65,17 @@ exports.submitAnswer = async (req, res) => {
             currentQuestion,
             answer,
             conversation,
+
+            interviewType,
+
             role,
+
             experience,
+
             difficulty,
+
             questionNumber
+
         } = req.body;
 
         if (!currentQuestion || !answer) {
@@ -66,6 +86,7 @@ exports.submitAnswer = async (req, res) => {
         }
 
         const result = await generateFollowUpQuestion(
+            interviewType,
             role,
             experience,
             difficulty,
@@ -102,9 +123,15 @@ exports.evaluateInterview = async (req, res) => {
 
         const {
             conversation,
+
+            interviewType,
+
             role,
+
             experience,
+
             difficulty,
+
         } = req.body;
 
         if (!conversation || conversation.length === 0) {
@@ -114,13 +141,20 @@ exports.evaluateInterview = async (req, res) => {
             });
         }
 
-        const evaluation = await generateInterviewEvaluation(conversation);
+        const evaluation = await generateInterviewEvaluation(
+            conversation,
+            interviewType
+        );
 
         await Interview.create({
             user: req.user.id,
 
+            interviewType,
+
             role,
+
             experience,
+
             difficulty,
 
             conversation,

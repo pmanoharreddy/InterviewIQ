@@ -10,6 +10,7 @@ function Interview() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
+        interviewType: "Technical",
         role: "",
         experience: "",
         difficulty: "",
@@ -17,9 +18,23 @@ function Interview() {
 
     const handleChange = (e) => {
 
+        const { name, value } = e.target;
+
+        if (name === "interviewType") {
+
+            setFormData({
+                interviewType: value,
+                role: "",
+                experience: formData.experience,
+                difficulty: formData.difficulty,
+            });
+
+            return;
+        }
+
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value,
+            [name]: value,
         });
 
     };
@@ -28,12 +43,16 @@ function Interview() {
 
         e.preventDefault();
 
-        if (
-            !formData.role ||
-            !formData.experience ||
-            !formData.difficulty
-        ) {
+        if (!formData.experience || !formData.difficulty) {
             alert("Please fill all fields");
+            return;
+        }
+
+        if (
+            formData.interviewType === "Technical" &&
+            !formData.role
+        ) {
+            alert("Please select a role");
             return;
         }
 
@@ -50,9 +69,7 @@ function Interview() {
             navigate("/interview/session", {
                 state: {
                     firstQuestion: response.data.question,
-                    role: formData.role,
-                    experience: formData.experience,
-                    difficulty: formData.difficulty,
+                    ...formData,
                 },
             });
 
@@ -78,36 +95,79 @@ function Interview() {
 
                 <form onSubmit={handleSubmit}>
 
+                    {/* Interview Type */}
+
                     <div className="form-group">
 
-                        <label>Role</label>
+                        <label>Interview Type</label>
 
                         <select
-                            name="role"
-                            value={formData.role}
+                            name="interviewType"
+                            value={formData.interviewType}
                             onChange={handleChange}
                         >
-                            <option value="">Select Role</option>
 
-                            <option value="Frontend Developer">
-                                Frontend Developer
+                            <option value="Technical">
+                                Technical Interview
                             </option>
 
-                            <option value="Backend Developer">
-                                Backend Developer
+                            <option value="DSA">
+                                DSA Interview
                             </option>
 
-                            <option value="Full Stack Developer">
-                                Full Stack Developer
+                            <option value="HR">
+                                HR Interview
                             </option>
 
-                            <option value="Java Developer">
-                                Java Developer
+                            <option value="Resume">
+                                Resume Interview
                             </option>
 
                         </select>
 
                     </div>
+
+                    {/* Role */}
+
+                    {formData.interviewType === "Technical" && (
+
+                        <div className="form-group">
+
+                            <label>Role</label>
+
+                            <select
+                                name="role"
+                                value={formData.role}
+                                onChange={handleChange}
+                            >
+
+                                <option value="">
+                                    Select Role
+                                </option>
+
+                                <option value="Frontend Developer">
+                                    Frontend Developer
+                                </option>
+
+                                <option value="Backend Developer">
+                                    Backend Developer
+                                </option>
+
+                                <option value="Full Stack Developer">
+                                    Full Stack Developer
+                                </option>
+
+                                <option value="Java Developer">
+                                    Java Developer
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    )}
+
+                    {/* Experience */}
 
                     <div className="form-group">
 
@@ -118,7 +178,10 @@ function Interview() {
                             value={formData.experience}
                             onChange={handleChange}
                         >
-                            <option value="">Select Experience</option>
+
+                            <option value="">
+                                Select Experience
+                            </option>
 
                             <option value="Fresher">
                                 Fresher
@@ -136,6 +199,8 @@ function Interview() {
 
                     </div>
 
+                    {/* Difficulty */}
+
                     <div className="form-group">
 
                         <label>Difficulty</label>
@@ -145,7 +210,10 @@ function Interview() {
                             value={formData.difficulty}
                             onChange={handleChange}
                         >
-                            <option value="">Select Difficulty</option>
+
+                            <option value="">
+                                Select Difficulty
+                            </option>
 
                             <option value="Easy">
                                 Easy
