@@ -10,17 +10,58 @@ const MODEL = "gemini-flash-latest";
 // Helper to safely parse Gemini JSON responses
 function parseGeminiJSON(text) {
     try {
-        return JSON.parse(
-            text
-                .replace(/```json/g, "")
-                .replace(/```/g, "")
-                .trim()
-        );
-    } catch (error) {
-        console.error("Failed to parse Gemini response:");
-        console.error(text);
-        throw new Error("Invalid JSON returned by Gemini.");
+        const cleaned = text
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+        return JSON.parse(cleaned);
+    } catch (err) {
+
+        // Extract JSON if Gemini adds extra text
+        const match = text.match(/\{[\s\S]*\}/);
+
+        if (match) {
+            return JSON.parse(match[0]);
+        }
+
+        console.error("Gemini Response:\n", text);
+        throw new Error("Failed to parse Gemini JSON.");
     }
+}
+
+async function generateGeminiResponse(prompt, expectJSON = false) {
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+
+        try {
+
+            const response = await ai.models.generateContent({
+                model: MODEL,
+                contents: prompt,
+                config: {
+                    temperature: 0.7,
+                    maxOutputTokens: 600,
+                },
+            });
+
+            const text = response.text.trim();
+
+            return expectJSON
+                ? parseGeminiJSON(text)
+                : text.replace(/```/g, "").trim();
+
+        }
+
+        catch (err) {
+
+            if (attempt === 3)
+                throw err;
+
+        }
+
+    }
+
 }
 
 async function generateInterviewQuestion(
@@ -62,22 +103,28 @@ Rules:
 else if (interviewType === "DSA") {
 
     prompt = `
-You are an experienced FAANG software engineer conducting a DSA interview.
+You are an experienced FAANG software engineer conducting a live coding interview.
 
-Generate ONE coding interview question.
+Generate ONLY ONE coding interview question.
 
 Difficulty: ${difficulty}
 Experience: ${experience}
 
 Rules:
 
-- The problem should be similar to questions asked in FAANG or top product companies.
-- The problem may come from Arrays, Strings, Trees, Graphs, DP, Greedy, Heap, Binary Search, Sliding Window or any DSA topic.
-- Do NOT reveal the topic.
-- Do NOT provide hints.
-- Do NOT provide the solution.
-- Return only the problem statement.
-- The question should require algorithmic thinking rather than programming language syntax.
+- The question should be similar to those asked in Google, Meta, Amazon, Microsoft, Atlassian or D. E. Shaw interviews.
+- The problem may belong to Arrays, Strings, Trees, Graphs, DP, Greedy, Heap, Binary Search, Sliding Window or any DSA topic.
+- Do NOT mention the topic.
+- Do NOT include a title.
+- Do NOT include examples.
+- Do NOT include constraints.
+- Do NOT include input/output format.
+- Do NOT include hints.
+- Do NOT include the solution.
+- Do NOT use markdown.
+- Do NOT use headings.
+- Keep the question under 120 words.
+- Return ONLY the interview question exactly as an interviewer would speak it.
 `;
 
 }
@@ -122,12 +169,7 @@ Rules:
 
 }
 
-    const response = await ai.models.generateContent({
-        model: MODEL,
-        contents: prompt,
-    });
-
-    return response.text.trim();
+return await generateGeminiResponse(prompt);
 }
 
 async function generateFollowUpQuestion(
@@ -145,6 +187,7 @@ async function generateFollowUpQuestion(
     questionNumber
 ) {
     const conversationHistory = conversation
+        .slice(-4)
         .map(
             (item) => `
 Interviewer: ${item.question}
@@ -305,12 +348,7 @@ When the interview is complete:
 }
 `;
 
-    const response = await ai.models.generateContent({
-        model: MODEL,
-        contents: prompt,
-    });
-
-    return parseGeminiJSON(response.text.trim());
+    return await generateGeminiResponse(prompt, true);
 }
 async function generateInterviewEvaluation(
 
@@ -319,17 +357,17 @@ async function generateInterviewEvaluation(
     interviewType="Technical"
 
 ){
-    const conversationHistory = conversation
-        .map(
-            (item, index) => `
+const conversationHistory = conversation
+    .map(
+        (item, index) => `
 Question ${index + 1}:
 ${item.question}
 
 Candidate Answer:
 ${item.answer}
 `
-        )
-        .join("\n");
+    )
+    .join("\n");
 
     const prompt = `
 You are an expert ${interviewType} interviewer.
@@ -422,12 +460,7 @@ Rules:
 - Return ONLY valid JSON.
 `;
 
-    const response = await ai.models.generateContent({
-        model: MODEL,
-        contents: prompt,
-    });
-
-    return parseGeminiJSON(response.text.trim());
+    return await generateGeminiResponse(prompt, true);
 }
 
 module.exports = {
