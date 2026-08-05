@@ -6,8 +6,9 @@ import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
 
 function Interview() {
-
     const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         interviewType: "Technical",
@@ -17,11 +18,9 @@ function Interview() {
     });
 
     const handleChange = (e) => {
-
         const { name, value } = e.target;
 
         if (name === "interviewType") {
-
             setFormData({
                 interviewType: value,
                 role: "",
@@ -36,11 +35,9 @@ function Interview() {
             ...formData,
             [name]: value,
         });
-
     };
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
 
         if (!formData.experience || !formData.difficulty) {
@@ -57,38 +54,35 @@ function Interview() {
         }
 
         try {
+            setLoading(true);
 
-    console.log("Sending:", formData);
+            console.log("Sending:", formData);
 
-    const response = await axios.post(
-        `${API_URL}/api/interview/start`,
-        formData,
-        {
-            withCredentials: true,
+            const response = await axios.post(
+                `${API_URL}/api/interview/start`,
+                formData,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            navigate("/interview/session", {
+                state: {
+                    firstQuestion: response.data.question,
+                    ...formData,
+                },
+            });
+        } catch (err) {
+            console.log(err.response?.data || err.message);
+            alert("Failed to start interview. Please try again.");
+        } finally {
+            setLoading(false);
         }
-    );
-
-    navigate("/interview/session", {
-        state: {
-            firstQuestion: response.data.question,
-            ...formData,
-        },
-    });
-
-} catch (err) {
-
-    console.log(err.response?.data || err.message);
-
-}
-
     };
 
     return (
-
         <div className="interview-container">
-
             <div className="interview-card">
-
                 <h1>AI Interview</h1>
 
                 <p className="subtitle">
@@ -96,19 +90,17 @@ function Interview() {
                 </p>
 
                 <form onSubmit={handleSubmit}>
-
                     {/* Interview Type */}
 
                     <div className="form-group">
-
                         <label>Interview Type</label>
 
                         <select
                             name="interviewType"
                             value={formData.interviewType}
                             onChange={handleChange}
+                            disabled={loading}
                         >
-
                             <option value="Technical">
                                 Technical Interview
                             </option>
@@ -124,25 +116,21 @@ function Interview() {
                             <option value="Resume">
                                 Resume Interview
                             </option>
-
                         </select>
-
                     </div>
 
                     {/* Role */}
 
                     {formData.interviewType === "Technical" && (
-
                         <div className="form-group">
-
                             <label>Role</label>
 
                             <select
                                 name="role"
                                 value={formData.role}
                                 onChange={handleChange}
+                                disabled={loading}
                             >
-
                                 <option value="">
                                     Select Role
                                 </option>
@@ -162,25 +150,21 @@ function Interview() {
                                 <option value="Java Developer">
                                     Java Developer
                                 </option>
-
                             </select>
-
                         </div>
-
                     )}
 
                     {/* Experience */}
 
                     <div className="form-group">
-
                         <label>Experience</label>
 
                         <select
                             name="experience"
                             value={formData.experience}
                             onChange={handleChange}
+                            disabled={loading}
                         >
-
                             <option value="">
                                 Select Experience
                             </option>
@@ -196,23 +180,20 @@ function Interview() {
                             <option value="2-5 Years">
                                 2-5 Years
                             </option>
-
                         </select>
-
                     </div>
 
                     {/* Difficulty */}
 
                     <div className="form-group">
-
                         <label>Difficulty</label>
 
                         <select
                             name="difficulty"
                             value={formData.difficulty}
                             onChange={handleChange}
+                            disabled={loading}
                         >
-
                             <option value="">
                                 Select Difficulty
                             </option>
@@ -228,26 +209,27 @@ function Interview() {
                             <option value="Hard">
                                 Hard
                             </option>
-
                         </select>
-
                     </div>
 
                     <button
                         type="submit"
                         className="start-btn"
+                        disabled={loading}
                     >
-                        Start Interview
+                        {loading ? (
+                            <>
+                                <span className="spinner"></span>
+                                Generating Questions...
+                            </>
+                        ) : (
+                            "Start Interview"
+                        )}
                     </button>
-
                 </form>
-
             </div>
-
         </div>
-
     );
-
 }
 
 export default Interview;
