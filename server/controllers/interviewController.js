@@ -41,21 +41,20 @@ exports.startInterview = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Submit answer error:", error);
+    console.error("Start interview error:", error);
 
-        // Gemini API quota/rate limit reached
-        if (error.status === 429) {
-            return res.status(429).json({
-                success: false,
-                message: "AI request limit reached. Please try again later."
-            });
-        }
-
-        return res.status(500).json({
+    if (error.status === 429) {
+        return res.status(429).json({
             success: false,
-            message: "Failed to process answer"
+            message: "AI request limit reached. Please try again later."
         });
     }
+
+    return res.status(500).json({
+        success: false,
+        message: "Failed to start interview."
+    });
+}
 };
 
 
