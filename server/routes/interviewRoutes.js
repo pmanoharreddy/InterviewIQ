@@ -1,5 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const upload = multer({
+    storage: multer.memoryStorage(),
+});
 
 const {
     startInterview,
@@ -14,6 +18,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.post(
     "/start",
     authMiddleware,
+    upload.single("resume"),
     startInterview
 );
 

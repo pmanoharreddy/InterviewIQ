@@ -211,7 +211,8 @@ async function generateInterviewQuestion(
     interviewType,
     role,
     experience,
-    difficulty
+    difficulty,
+    resumeText = ""
 ) {
     let prompt = "";
     let config = CONFIG.TECHNICAL;
@@ -353,38 +354,42 @@ Rules:
 `;
 
     } else {
-        config = CONFIG.RESUME;
+    config = CONFIG.RESUME;
 
-        prompt = `
-You are a resume interviewer for a software engineering role.
+    prompt = `
+You are an experienced software engineering interviewer.
 
-Generate ONE resume-based interview question based on typical candidate profiles.
+The candidate has uploaded the following resume.
+
+================ RESUME ================
+
+${resumeText}
+
+========================================
 
 Experience: ${experience}
 
 Rules:
-- Ask only ONE question.
-- Focus on common resume items:
-  - Projects (web apps, mobile apps, ML projects, open source)
-  - Internships and work experience
-  - Technologies used (frameworks, languages, tools)
-  - Achievements and impact
-  - Design decisions and architecture
-  - Challenges faced and solutions
-  
-- Frame the question assuming the candidate has relevant experience.
-- Make it specific enough to be realistic but generic enough to apply broadly.
-- Do NOT ask HR or DSA questions.
-- Do NOT use markdown.
-- Return only the question.
-- End with a question mark.
 
-Example questions:
-- "Can you walk me through the architecture of your most complex project?"
-- "What was the biggest technical challenge you faced in your last internship?"
-- "How did you ensure code quality in your recent project?"
+- Read the resume carefully.
+- Ask ONLY ONE interview question.
+- The question MUST be based on the uploaded resume.
+- Prefer asking about:
+  1. Projects
+  2. Technologies used
+  3. Design decisions
+  4. Challenges faced
+  5. Internships
+  6. Achievements
+
+- Do NOT ask generic technical questions unless they relate to the resume.
+- Do NOT ask DSA questions.
+- Do NOT ask HR questions.
+- Do NOT include the answer.
+- Return ONLY the interview question.
+- End with a question mark.
 `;
-    }
+}
 
     return await generateGeminiResponse(
         prompt,
@@ -404,7 +409,8 @@ async function generateFollowUpQuestion(
     currentQuestion,
     answer,
     conversation = [],
-    questionNumber
+    questionNumber,
+    resumeText = ""
 ) {
     const conversationHistory = conversation
         .slice(-4)
@@ -431,6 +437,17 @@ ${interviewType === "DSA"
 Candidate Profile:
 ${interviewType === "Technical" ? `Role: ${role}\n` : ""}Experience: ${experience}
 Difficulty: ${difficulty}
+
+${
+    interviewType === "Resume"
+        ? `
+Candidate Resume:
+==============================
+${resumeText}
+==============================
+`
+        : ""
+}
 
 Interview Progress:
 Current main question number: ${questionNumber}
@@ -459,6 +476,22 @@ Use FOLLOW_UP when:
 - For DSA: an optimization exists but wasn't mentioned.
 - For DSA: important edge cases or implementation details should be explored.
 - For Technical: a follow-up can test deeper knowledge.
+
+If interviewType is Resume:
+
+- If the candidate gives a vague or incomplete explanation about a project,
+  ask a follow-up about that SAME project.
+- Ask deeper questions about:
+  - Architecture
+  - Design decisions
+  - Challenges faced
+  - Authentication
+  - Database choice
+  - APIs
+  - Deployment
+  - Optimizations
+- Never jump to another project until the current project has been explored.
+- Do not repeat previous follow-up questions.
 
 When using FOLLOW_UP for DSA/coding:
 - First, let them explain their approach if they haven't.
@@ -491,6 +524,8 @@ If interviewType is Technical:
 - Cover different concepts from previous questions.
 - Match the selected difficulty: ${difficulty}.
 
+
+
 If interviewType is DSA:
 - Ask another coding question of difficulty: ${difficulty}.
 - Choose a different algorithmic concept from previous questions.
@@ -501,8 +536,37 @@ If interviewType is HR:
 - Focus on different aspects (teamwork, leadership, conflict, motivation, etc.).
 
 If interviewType is Resume:
-- Ask another resume-based question.
-- Focus on different aspects (projects, internships, technologies, challenges, etc.).
+
+- Read the uploaded resume carefully.
+- Ask ONLY questions based on the uploaded resume.
+- Use the previous conversation to avoid repeating questions.
+- Continue naturally from the last topic.
+
+Question priority:
+
+1. Projects
+2. Project architecture
+3. Technologies used
+4. Challenges faced
+5. Design decisions
+6. Optimizations
+7. Authentication
+8. Databases
+9. APIs
+10. Deployment
+11. Skills
+12. Certifications
+13. Achievements
+
+Rules:
+
+- Never ask generic Java, React, DBMS or DSA questions unless they directly relate to something written in the resume.
+- If InterviewIQ has already been discussed, move to Course Scheduler.
+- If Course Scheduler has already been discussed, move to StayNest.
+- If projects are finished, move to technical skills.
+- If technical skills are finished, move to certifications and achievements.
+- Never repeat a previously discussed project.
+- Ask only ONE question.
 
 Rules for NEXT_QUESTION:
 - Match the selected difficulty.

@@ -15,6 +15,7 @@ function Interview() {
         role: "",
         experience: "",
         difficulty: "",
+        resume: null,
     });
 
     const handleChange = (e) => {
@@ -26,6 +27,7 @@ function Interview() {
                 role: "",
                 experience: formData.experience,
                 difficulty: formData.difficulty,
+                resume: null,
             });
 
             return;
@@ -52,23 +54,44 @@ function Interview() {
             alert("Please select a role");
             return;
         }
-
+        if (
+            formData.interviewType === "Resume" &&
+            !formData.resume
+        ) {
+            alert("Please upload your resume");
+            return;
+        }
         try {
             setLoading(true);
 
             console.log("Sending:", formData);
 
+            const data = new FormData();
+
+            data.append("interviewType", formData.interviewType);
+            data.append("role", formData.role);
+            data.append("experience", formData.experience);
+            data.append("difficulty", formData.difficulty);
+
+            if (formData.resume) {
+                data.append("resume", formData.resume);
+            }
+
             const response = await axios.post(
                 `${API_URL}/api/interview/start`,
-                formData,
+                data,
                 {
                     withCredentials: true,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
                 }
             );
 
             navigate("/interview/session", {
                 state: {
                     firstQuestion: response.data.question,
+                    resumeText: response.data.resumeText,
                     ...formData,
                 },
             });
@@ -151,6 +174,23 @@ function Interview() {
                                     Java Developer
                                 </option>
                             </select>
+                        </div>
+                    )}
+                    {formData.interviewType === "Resume" && (
+                        <div className="form-group">
+                            <label>Upload Resume (PDF/DOC/DOCX)</label>
+
+                            <input
+                                type="file"
+                                accept=".pdf,.doc,.docx"
+                                disabled={loading}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        resume: e.target.files[0],
+                                    })
+                                }
+                            />
                         </div>
                     )}
 

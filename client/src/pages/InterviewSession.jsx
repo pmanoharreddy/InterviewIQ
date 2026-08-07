@@ -18,12 +18,13 @@ function InterviewSession() {
         topic,
         experience,
         difficulty,
+        resumeText,
     } = location.state || {};
 
     const [answer, setAnswer] = useState("");
     const [currentQuestion, setCurrentQuestion] = useState(firstQuestion);
 
-    const [questionNumber, setQuestionNumber] = useState(10);
+    const [questionNumber, setQuestionNumber] = useState(5);
 
     const [conversation, setConversation] = useState([]);
 
@@ -51,6 +52,7 @@ function InterviewSession() {
                     experience,
                     difficulty,
                     questionNumber,
+                    resumeText,
                 },
                 {
                     withCredentials: true,

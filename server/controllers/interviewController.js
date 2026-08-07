@@ -4,15 +4,29 @@ const {
     generateInterviewEvaluation
 } = require("../services/geminiService");
 const Interview = require("../models/Interview");
+const pdf = require("pdf-parse");
+
+
 
 exports.startInterview = async (req, res) => {
     try {
+        console.log("Body:", req.body);
+        console.log("File:", req.file);
         const {
             interviewType,
             role,
             experience,
-            difficulty
-        } = req.body;
+            difficulty,
+        } = req.body || {};
+        let resumeText = "";
+
+        if (interviewType === "Resume" && req.file) {
+            const data = await pdf(req.file.buffer);
+            resumeText = data.text;
+
+            console.log("Resume Text:");
+            console.log(resumeText);
+        }
 
         if (!interviewType || !experience || !difficulty) {
             return res.status(400).json({
@@ -32,29 +46,31 @@ exports.startInterview = async (req, res) => {
             interviewType,
             role,
             experience,
-            difficulty
+            difficulty,
+            resumeText
         );
 
         return res.status(200).json({
             success: true,
             question,
+            resumeText,
         });
 
     } catch (error) {
-    console.error("Start interview error:", error);
+        console.error("Start interview error:", error);
 
-    if (error.status === 429) {
-        return res.status(429).json({
+        if (error.status === 429) {
+            return res.status(429).json({
+                success: false,
+                message: "AI request limit reached. Please try again later."
+            });
+        }
+
+        return res.status(500).json({
             success: false,
-            message: "AI request limit reached. Please try again later."
+            message: "Failed to start interview."
         });
     }
-
-    return res.status(500).json({
-        success: false,
-        message: "Failed to start interview."
-    });
-}
 };
 
 
@@ -64,17 +80,12 @@ exports.submitAnswer = async (req, res) => {
             currentQuestion,
             answer,
             conversation,
-
             interviewType,
-
             role,
-
             experience,
-
             difficulty,
-
-            questionNumber
-
+            questionNumber,
+            resumeText,
         } = req.body;
 
         if (!currentQuestion || !answer) {
@@ -92,7 +103,8 @@ exports.submitAnswer = async (req, res) => {
             currentQuestion,
             answer,
             conversation,
-            questionNumber
+            questionNumber,
+            resumeText
         );
 
         return res.status(200).json({

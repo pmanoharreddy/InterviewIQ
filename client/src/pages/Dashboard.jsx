@@ -125,36 +125,36 @@ function Dashboard() {
                     <h2>Recent Interviews</h2>
 
                     {
-                        recentInterviews.length === 0 ?
-
+                        recentInterviews.length === 0 ? (
                             <p>No interviews yet.</p>
-
-                            :
-
-                            recentInterviews.map(interview => (
-
+                        ) : (
+                            recentInterviews.map((interview) => (
                                 <div
                                     key={interview._id}
                                     className="recent-item"
                                 >
-
                                     <div>
-
-                                        <h3>{interview.role}</h3>
+                                        <h3>
+                                            {interview.interviewType === "Technical"
+                                                ? interview.role
+                                                : interview.interviewType === "Resume"
+                                                    ? "Resume Interview"
+                                                    : interview.interviewType === "DSA"
+                                                        ? "DSA Interview"
+                                                        : "HR Interview"}
+                                        </h3>
 
                                         <p>
-                                            {interview.difficulty}
+                                            {interview.difficulty} • {interview.experience}
                                         </p>
-
                                     </div>
 
                                     <strong>
                                         {interview.overallScore}/100
                                     </strong>
-
                                 </div>
-
                             ))
+                        )
                     }
 
                 </div>
