@@ -9,10 +9,10 @@ Users can create different types of interviews, including technical, DSA, HR, an
 ## Live Demo
 
 **Frontend:**  
-https://your-vercel-link.vercel.app
+[https://your-vercel-link.vercel.app](https://interviewiq-mu.vercel.app/)
 
 **Backend API:**  
-https://your-render-link.onrender.com
+[https://your-render-link.onrender.com](https://interviewiq-nzf2.onrender.com)
 
 ---
 
