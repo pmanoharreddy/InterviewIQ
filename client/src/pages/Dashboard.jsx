@@ -15,34 +15,39 @@ function Dashboard() {
     const [recentInterviews, setRecentInterviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
+
     useEffect(() => {
 
-        const loadDashboard = async () => {
+        const getDashboard = async () => {
 
             try {
 
-                const profileResponse = await axios.get(
+                const userResponse = await axios.get(
                     `${API_URL}/api/auth/profile`,
                     {
-                        withCredentials: true,
+                        withCredentials: true
                     }
                 );
 
-                setUser(profileResponse.data.user);
+                setUser(userResponse.data.user);
+
 
                 const dashboardResponse = await axios.get(
                     `${API_URL}/api/interview/dashboard`,
                     {
-                        withCredentials: true,
+                        withCredentials: true
                     }
                 );
 
                 setAnalytics(dashboardResponse.data.analytics);
-                setRecentInterviews(dashboardResponse.data.recentInterviews);
 
-            } catch (err) {
+                setRecentInterviews(
+                    dashboardResponse.data.recentInterviews
+                );
 
-                console.log(err.response?.data || err.message);
+            } catch (error) {
+
+                console.log(error);
 
                 navigate("/login");
 
@@ -54,9 +59,10 @@ function Dashboard() {
 
         };
 
-        loadDashboard();
+        getDashboard();
 
     }, [navigate]);
+
 
     const handleLogout = async () => {
 
@@ -66,75 +72,138 @@ function Dashboard() {
                 `${API_URL}/api/auth/logout`,
                 {},
                 {
-                    withCredentials: true,
+                    withCredentials: true
                 }
             );
 
             navigate("/login");
 
-        } catch (err) {
+        } catch (error) {
 
-            console.log(err.response?.data || err.message);
+            console.log(error);
 
         }
 
     };
 
+
     if (loading) {
         return <Loader message="Loading Dashboard..." />;
     }
+
 
     return (
 
         <div className="dashboard-container">
 
-            <div className="dashboard-card">
+            <div className="dashboard-content">
 
-                <h1>Welcome Back 👋</h1>
+                {/* Header */}
 
-                <p className="welcome-text">
-                    {user?.email}
-                </p>
+                <div className="dashboard-header">
+
+                    <div>
+                        <h1>Welcome back</h1>
+
+                        <p>{user?.email}</p>
+                    </div>
+
+                    <Link
+                        to="/interview"
+                        className="start-interview-btn"
+                    >
+                        Start Interview
+                    </Link>
+
+                </div>
+
+
+                {/* Analytics */}
 
                 <div className="analytics-grid">
 
                     <div className="analytics-box">
-                        <h3>Total Interviews</h3>
-                        <h2>{analytics?.totalInterviews}</h2>
+                        <p>Total Interviews</p>
+                        <h2>
+                            {analytics?.totalInterviews || 0}
+                        </h2>
                     </div>
 
-                    <div className="analytics-box">
-                        <h3>Average Score</h3>
-                        <h2>{analytics?.averageScore}</h2>
-                    </div>
 
                     <div className="analytics-box">
-                        <h3>Highest Score</h3>
-                        <h2>{analytics?.highestScore}</h2>
+                        <p>Average Score</p>
+                        <h2>
+                            {analytics?.averageScore || 0}
+                        </h2>
                     </div>
 
+
                     <div className="analytics-box">
-                        <h3>Latest Score</h3>
-                        <h2>{analytics?.latestScore}</h2>
+                        <p>Highest Score</p>
+                        <h2>
+                            {analytics?.highestScore || 0}
+                        </h2>
+                    </div>
+
+
+                    <div className="analytics-box">
+                        <p>Latest Score</p>
+                        <h2>
+                            {analytics?.latestScore || 0}
+                        </h2>
                     </div>
 
                 </div>
 
+
+                {/* Recent Interviews */}
+
                 <div className="recent-section">
 
-                    <h2>Recent Interviews</h2>
+                    <div className="section-heading">
 
-                    {
-                        recentInterviews.length === 0 ? (
-                            <p>No interviews yet.</p>
+                        <div>
+
+                            <h2>Recent Interviews</h2>
+
+                            <p>
+                                Your latest interview performance
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            className="history-link"
+                            onClick={() => navigate("/history")}
+                        >
+                            View all
+                        </button>
+
+                    </div>
+
+
+                    <div className="interview-list">
+
+                        {recentInterviews.length === 0 ? (
+
+                            <div className="empty-message">
+                                No interviews yet.
+                            </div>
+
                         ) : (
+
                             recentInterviews.map((interview) => (
+
                                 <div
+                                    className="interview-row"
                                     key={interview._id}
-                                    className="recent-item"
                                 >
+
                                     <div>
+
                                         <h3>
+
                                             {interview.interviewType === "Technical"
                                                 ? interview.role
                                                 : interview.interviewType === "Resume"
@@ -142,41 +211,63 @@ function Dashboard() {
                                                     : interview.interviewType === "DSA"
                                                         ? "DSA Interview"
                                                         : "HR Interview"}
+
                                         </h3>
 
+
                                         <p>
-                                            {interview.difficulty} • {interview.experience}
+                                            {interview.difficulty}
+                                            {" • "}
+                                            {interview.experience}
                                         </p>
+
                                     </div>
 
-                                    <strong>
-                                        {interview.overallScore}/100
-                                    </strong>
+
+                                    <div className="score">
+
+                                        <strong>
+                                            {interview.overallScore}
+                                        </strong>
+
+                                        <span>/100</span>
+
+                                    </div>
+
                                 </div>
+
                             ))
-                        )
-                    }
+
+                        )}
+
+                    </div>
 
                 </div>
+
+
+                {/* Bottom Buttons */}
 
                 <div className="dashboard-buttons">
 
                     <Link
                         to="/interview"
-                        className="dashboard-btn"
+                        className="primary-button"
                     >
                         Start Interview
                     </Link>
 
+
                     <button
                         onClick={() => navigate("/history")}
+                        className="secondary-button"
                     >
                         Interview History
                     </button>
 
+
                     <button
                         onClick={handleLogout}
-                        className="logout-btn"
+                        className="logout-button"
                     >
                         Logout
                     </button>

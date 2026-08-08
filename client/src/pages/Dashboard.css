@@ -1,103 +1,404 @@
-.dashboard-container{
-    min-height:100vh;
-    background:#f4f7fb;
-    display:flex;
-    justify-content:center;
-    padding:40px;
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+.dashboard-container {
+    min-height: 100vh;
+    background: #eeeef1;
+    background-image: linear-gradient(#d9dbe1 1px, transparent 1px);
+    background-size: 100% 44px;
+
+    padding: 48px 24px 60px;
+
+    font-family: 'IBM Plex Mono', monospace;
+
+    color: #1b2430;
 }
 
-.dashboard-card{
-    width:100%;
-    max-width:1100px;
-    background:white;
-    border-radius:18px;
-    padding:35px;
-    box-shadow:0 8px 25px rgba(0,0,0,.08);
+.dashboard-content {
+    max-width: 1040px;
+    margin: auto;
 }
 
-.dashboard-card h1{
-    text-align:center;
-    margin-bottom:10px;
+
+/* Header */
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    padding-bottom: 22px;
+    margin-bottom: 24px;
+
+    border-bottom: 2px solid #1b2430;
 }
 
-.welcome-text{
-    text-align:center;
-    color:#666;
-    margin-bottom:35px;
+.welcome-area h1 {
+    margin: 0;
+
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 34px;
+    font-weight: 600;
 }
 
-.analytics-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
+.welcome-area p {
+    margin: 8px 0 0;
+
+    color: #5b6472;
+
+    font-size: 12px;
 }
 
-.analytics-box{
-    background:#4f46e5;
-    color:white;
-    border-radius:14px;
-    padding:25px;
-    text-align:center;
+
+/* Start Interview */
+
+.start-interview-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 40px;
+    padding: 0 18px;
+
+    background: #1f6f5c;
+    color: white;
+
+    border: 1px solid #1f6f5c;
+    border-radius: 2px;
+
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
 }
 
-.analytics-box h3{
-    margin-bottom:15px;
-    font-weight:500;
+.start-interview-btn:hover {
+    background: #175544;
 }
 
-.analytics-box h2{
-    font-size:38px;
+
+/* Analytics */
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    background: white;
+
+    border: 1px solid #d9dbe1;
+    border-radius: 2px;
+
+    margin-bottom: 40px;
 }
 
-.recent-section{
-    margin-top:40px;
+.analytics-box {
+    padding: 20px 22px;
+
+    border-right: 1px solid #d9dbe1;
 }
 
-.recent-section h2{
-    margin-bottom:20px;
+.analytics-box:last-child {
+    border-right: none;
 }
 
-.recent-item{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:18px;
-    border:1px solid #ddd;
-    border-radius:10px;
-    margin-bottom:15px;
+.analytics-box p {
+    margin: 0 0 12px;
+
+    color: #5b6472;
+
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.dashboard-buttons{
-    margin-top:40px;
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
+.analytics-box h2 {
+    margin: 0;
+
+    font-family: 'Source Serif 4', Georgia, serif;
+
+    font-size: 30px;
+    font-weight: 600;
 }
 
-.dashboard-buttons button,
-.dashboard-btn{
-    flex:1;
-    padding:15px;
-    border:none;
-    border-radius:10px;
-    background:#4f46e5;
-    color:white;
-    text-align:center;
-    text-decoration:none;
-    cursor:pointer;
-    font-size:16px;
-    transition:.3s;
+
+/* Recent Interviews */
+
+.recent-section {
+    margin-top: 4px;
 }
 
-.dashboard-buttons button:hover,
-.dashboard-btn:hover{
-    background:#4338ca;
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    margin-bottom: 14px;
 }
 
-.logout-btn{
-    background:#ef4444 !important;
+.section-heading h2 {
+    margin: 0;
+
+    font-family: 'Source Serif 4', Georgia, serif;
+
+    font-size: 20px;
+    font-weight: 600;
 }
 
-.logout-btn:hover{
-    background:#dc2626 !important;
+.section-heading p {
+    margin: 5px 0 0;
+
+    color: #5b6472;
+
+    font-size: 12px;
+}
+
+.history-link {
+    padding: 0;
+
+    background: none;
+    border: none;
+    border-bottom: 1px solid #1f6f5c;
+
+    color: #1f6f5c;
+
+    font-family: 'IBM Plex Mono', monospace;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.history-link:hover {
+    color: #175544;
+}
+
+
+/* Interview List */
+
+.interview-list {
+    background: white;
+
+    border: 1px solid #d9dbe1;
+    border-radius: 2px;
+
+    overflow: hidden;
+}
+
+.interview-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    min-height: 70px;
+
+    padding: 14px 22px;
+
+    border-bottom: 1px solid #d9dbe1;
+    border-left: 3px solid #1f6f5c;
+}
+
+.interview-row:last-child {
+    border-bottom: none;
+}
+
+.interview-row:hover {
+    background: #fafaf8;
+}
+
+.interview-row h3 {
+    margin: 0 0 5px;
+
+    font-family: 'Source Serif 4', Georgia, serif;
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.interview-row p {
+    margin: 0;
+
+    color: #5b6472;
+
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.score {
+    display: flex;
+    align-items: baseline;
+}
+
+.score strong {
+    color: #1f6f5c;
+
+    font-size: 21px;
+    font-weight: 600;
+}
+
+.score span {
+    margin-left: 3px;
+
+    color: #9aa1ac;
+
+    font-size: 12px;
+}
+
+
+/* Empty message */
+
+.empty-message {
+    padding: 40px;
+
+    text-align: center;
+
+    color: #5b6472;
+
+    font-size: 13px;
+}
+
+
+/* Bottom Buttons */
+
+.dashboard-buttons {
+    display: flex;
+    gap: 10px;
+
+    margin-top: 30px;
+    padding-top: 22px;
+
+    border-top: 1px solid #d9dbe1;
+}
+
+.primary-button,
+.secondary-button,
+.logout-button {
+    flex: 1;
+
+    height: 40px;
+
+    border-radius: 2px;
+
+    font-family: 'IBM Plex Mono', monospace;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* Start */
+
+.primary-button {
+    background: #1f6f5c;
+    color: white;
+
+    border: 1px solid #1f6f5c;
+
+    text-decoration: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-button:hover {
+    background: #175544;
+}
+
+
+/* History */
+
+.secondary-button {
+    background: transparent;
+    color: #1b2430;
+
+    border: 1px solid #1b2430;
+}
+
+.secondary-button:hover {
+    background: #1b2430;
+    color: white;
+}
+
+
+/* Logout */
+
+.logout-button {
+    background: transparent;
+    color: #a83b2e;
+
+    border: 1px solid #a83b2e;
+}
+
+.logout-button:hover {
+    background: #a83b2e;
+    color: white;
+}
+
+
+/* Responsive */
+
+@media (max-width: 850px) {
+
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .analytics-box:nth-child(2) {
+        border-right: none;
+    }
+
+    .analytics-box:nth-child(1),
+    .analytics-box:nth-child(2) {
+        border-bottom: 1px solid #d9dbe1;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .dashboard-container {
+        padding: 32px 16px 45px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 16px;
+    }
+
+    .welcome-area h1 {
+        font-size: 27px;
+    }
+
+    .start-interview-btn {
+        width: 100%;
+    }
+
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .analytics-box {
+        padding: 16px;
+    }
+
+    .analytics-box h2 {
+        font-size: 24px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+    }
+
+    .interview-row {
+        padding: 14px 16px;
+    }
+
+    .dashboard-buttons {
+        flex-direction: column;
+    }
+
 }

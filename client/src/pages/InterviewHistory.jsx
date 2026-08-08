@@ -61,7 +61,18 @@ function InterviewHistory() {
 
             <div className="history-card">
 
+                {/* Back button */}
+
+                <button
+                    className="back-button"
+                    onClick={() => navigate("/dashboard")}
+                >
+                    ← Back to Dashboard
+                </button>
+
+
                 <h1>Interview History</h1>
+
 
                 {
                     interviews.length === 0 ? (
@@ -80,30 +91,12 @@ function InterviewHistory() {
                                 <div>
 
                                     <h2>
-    {interview.role || `${interview.interviewType} Interview`}
-</h2>
-
-<p>
-    <strong>Interview Type:</strong>{" "}
-    {interview.interviewType}
-</p>
-
-<p>
-    <strong>Experience:</strong>{" "}
-    {interview.experience}
-</p>
-
-<p>
-    <strong>Difficulty:</strong>{" "}
-    {interview.difficulty}
-</p>
-
-<p>
-    <strong>Date:</strong>{" "}
-    {new Date(interview.createdAt).toLocaleDateString()}
-</p>
+                                        {interview.role ||
+                                            `${interview.interviewType} Interview`}
+                                    </h2>
 
                                 </div>
+
 
                                 <div className="history-score">
 
@@ -140,7 +133,6 @@ function InterviewHistory() {
         </div>
 
     );
-
 }
 
 export default InterviewHistory;

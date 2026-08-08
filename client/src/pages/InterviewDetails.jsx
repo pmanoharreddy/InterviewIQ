@@ -15,9 +15,9 @@ function InterviewDetails() {
                 <h2>No Interview Found</h2>
 
                 <button
-                    onClick={() => navigate("/history")}
+                    onClick={() => navigate("/InterviewHistory")}
                 >
-                    Back
+                    Back to History
                 </button>
 
             </div>
@@ -34,7 +34,7 @@ function InterviewDetails() {
                     className="back-btn"
                     onClick={() => navigate("/history")}
                 >
-                    ← Back
+                    ← Back to History
                 </button>
 
                 <h1>Interview Details</h1>
@@ -161,7 +161,6 @@ function InterviewDetails() {
         </div>
 
     );
-
 }
 
 export default InterviewDetails;
