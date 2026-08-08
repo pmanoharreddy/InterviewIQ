@@ -1,30 +1,41 @@
-# InterviewIQ - AI Powered Mock Interview Platform
+# InterviewIQ - AI-Powered Mock Interview Platform
 
-InterviewIQ is a full-stack web application that helps users prepare for technical interviews through AI-powered mock interview sessions.
+InterviewIQ is a full-stack web application that helps students and job seekers practice technical interviews through AI-powered mock interview sessions.
 
-Users can create a customized interview, answer AI-generated questions, receive personalized feedback, and review their previous interview attempts. The platform aims to simulate a real interview experience while helping users identify their strengths and areas for improvement.
+Users can create different types of interviews, including technical, DSA, HR, and resume-based interviews. The platform generates questions using Google Gemini, evaluates responses, provides personalized feedback, and stores interview results for future review.
 
 ---
 
 ## Live Demo
 
-Frontend: [https://your-vercel-link.vercel.app](https://interviewiq-mu.vercel.app/)
+**Frontend:**  
+https://your-vercel-link.vercel.app
 
-Backend API: [https://your-render-link.onrender.com](https://interviewiq-nzf2.onrender.com)
+**Backend API:**  
+https://your-render-link.onrender.com
+
+---
+
+## Overview
+
+InterviewIQ is designed to simulate an interview environment without requiring another person to conduct the interview.
+
+The platform allows users to:
+
+- Practice different types of interviews
+- Upload their resume for personalized interview questions
+- Answer questions in a simulated interview
+- Receive AI-generated performance evaluations
+- Track scores and performance
+- Review previous interviews and detailed feedback
 
 ---
 
 ## Problem Statement
 
-Preparing for technical interviews usually requires another person to ask questions and provide feedback. Many students struggle to find consistent practice opportunities.
+Preparing for technical interviews often requires consistent practice and feedback. Students may not always have access to someone who can conduct mock interviews and evaluate their responses.
 
-InterviewIQ solves this by providing an AI interviewer that can:
-
-- Generate interview questions
-- Conduct mock interviews
-- Evaluate answers
-- Store interview history
-- Help users improve over time
+InterviewIQ addresses this problem by providing an AI-powered interviewer that can generate questions, evaluate answers, and provide personalized feedback.
 
 ---
 
@@ -32,170 +43,108 @@ InterviewIQ solves this by providing an AI interviewer that can:
 
 ### Authentication
 
-- User Registration
-- User Login
-- Secure JWT Authentication
-- HTTP-only Cookies
-- Protected Routes
+- User registration
+- User login
+- JWT-based authentication
+- HTTP-only cookies
+- Protected routes
 - Logout
 
-### AI Interview
+### Multiple Interview Types
 
-- Create a new interview
-- AI-generated interview questions using Google Gemini API
-- Answer questions one by one
-- Submit interview
+Users can practice different types of interviews:
+
+- Technical interviews
+- DSA interviews
+- HR interviews
+- Resume-based interviews
+
+### AI-Powered Interviews
+
+- AI-generated interview questions
+- Questions based on selected interview parameters
+- Interactive question-by-question interview flow
+- Answer submission
+- AI-powered response evaluation
+
+### Resume-Based Interviews
+
+Users can upload their resume and generate an interview based on the information in their resume.
+
+The system can use the uploaded resume to create relevant questions and simulate a resume-focused interview.
 
 ### AI Feedback
 
-- AI evaluates responses
-- Displays strengths and areas for improvement
-- Generates interview feedback
+After completing an interview, InterviewIQ provides:
+
+- Overall score
+- Technical score
+- Problem-solving score
+- Communication score
+- Confidence score
+- Strengths
+- Areas for improvement
+- Personalized AI feedback
 
 ### Dashboard
 
-- Start new interviews
-- Access interview history
-- View completed interviews
+The dashboard provides an overview of the user's interview performance.
+
+It includes:
+
+- Total interviews
+- Average score
+- Highest score
+- Latest score
+- Recent interviews
+- Quick access to start a new interview
+- Interview history
 
 ### Interview History
 
-- Stores all previous interviews
+Users can:
+
+- View previous interviews
+- View interview scores
 - View interview details
 - Review AI feedback
+- Review previous questions and answers
 
 ---
 
 ## How It Works
 
-1. User creates an account.
-2. User logs in securely.
-3. User starts a new interview.
-4. Google Gemini generates interview questions.
-5. User answers each question.
-6. AI evaluates the responses.
-7. Interview results are stored in MongoDB.
-8. Users can revisit previous interviews anytime.
-
----
-
-## Tech Stack
-
-### Frontend
-
-- React.js
-- React Router
-- HTML5
-- CSS3
-- Axios
-
-### Backend
-
-- Node.js
-- Express.js
-- JWT Authentication
-- HTTP-only Cookies
-
-### Database
-
-- MongoDB
-- Mongoose
-
-### AI Integration
-
-- Google Gemini API
-
-### Deployment
-
-- Vercel
-- Render
-- MongoDB Atlas
-
----
-
-## Project Structure
-
-```
-InterviewIQ
-│
-├── client
-│   ├── src
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── services
-│   │   └── App.jsx
-│
-├── server
-│   ├── controllers
-│   ├── middleware
-│   ├── models
-│   ├── routes
-│   ├── config
-│   └── server.js
-│
-└── README.md
-```
-
----
-
-## Installation
-
-Clone the repository
-
-```bash
-git clone https://github.com/yourusername/InterviewIQ.git
-```
-
-Install frontend
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-Install backend
-
-```bash
-cd server
-npm install
-npm start
-```
-
----
-
-## Environment Variables
-
-Create a `.env` file inside the server folder.
-
-```env
-PORT=5000
-
-MONGO_URI=your_mongodb_uri
-
-JWT_SECRET=your_secret_key
-
-GEMINI_API_KEY=your_gemini_api_key
-
-CLIENT_URL=http://localhost:5173
-```
-
----
-
-## Future Improvements
-
-- Voice-based mock interviews
-- Resume-based interview generation
-- Coding interview mode
-- Company-specific interview sets
-- Performance analytics dashboard
-
----
-
-## Author
-
-**P Manohar Reddy**
-
-GitHub: (https://github.com/pmanoharreddy)
-
-LinkedIn: (https://www.linkedin.com/in/manoharreddy1/)
+```text
+User
+  │
+  ▼
+Create Account / Login
+  │
+  ▼
+Choose Interview Type
+  │
+  ├── Technical
+  ├── DSA
+  ├── HR
+  └── Resume-Based
+          │
+          ▼
+    Generate Questions
+          │
+          ▼
+     Answer Questions
+          │
+          ▼
+       AI Evaluation
+          │
+          ▼
+    Generate Feedback
+          │
+          ▼
+     Calculate Scores
+          │
+          ▼
+     Store in MongoDB
+          │
+          ▼
+ Dashboard / History
