@@ -1,41 +1,46 @@
 # InterviewIQ - AI-Powered Mock Interview Platform
 
-InterviewIQ is a full-stack web application that helps students and job seekers practice technical interviews through AI-powered mock interview sessions.
+InterviewIQ is a full-stack web application that helps students and job seekers practice interviews through AI-powered mock interview sessions.
 
-Users can create different types of interviews, including technical, DSA, HR, and resume-based interviews. The platform generates questions using Google Gemini, evaluates responses, provides personalized feedback, and stores interview results for future review.
+Users can practice Technical, DSA, HR, and Resume-based interviews, receive AI-generated questions and feedback, track their performance, and review previous interview attempts.
 
 ---
 
 ## Live Demo
 
 **Frontend:**  
-[https://your-vercel-link.vercel.app](https://interviewiq-mu.vercel.app/)
+https://interviewiq-mu.vercel.app/
 
 **Backend API:**  
-[https://your-render-link.onrender.com](https://interviewiq-nzf2.onrender.com)
+https://interviewiq-nzf2.onrender.com/
+
+**GitHub:**  
+https://github.com/pmanoharreddy/InterviewIQ
 
 ---
 
 ## Overview
 
-InterviewIQ is designed to simulate an interview environment without requiring another person to conduct the interview.
+InterviewIQ is designed to simulate a real interview environment without requiring another person to conduct the interview.
 
 The platform allows users to:
 
 - Practice different types of interviews
-- Upload their resume for personalized interview questions
-- Answer questions in a simulated interview
+- Generate AI-powered interview questions
+- Upload a resume for personalized interview questions
+- Answer questions one by one
 - Receive AI-generated performance evaluations
-- Track scores and performance
-- Review previous interviews and detailed feedback
+- View detailed scores and feedback
+- Track interview performance through a dashboard
+- Review previous interviews and conversations
 
 ---
 
 ## Problem Statement
 
-Preparing for technical interviews often requires consistent practice and feedback. Students may not always have access to someone who can conduct mock interviews and evaluate their responses.
+Preparing for technical interviews requires consistent practice and useful feedback. Students may not always have access to someone who can conduct mock interviews and evaluate their answers.
 
-InterviewIQ addresses this problem by providing an AI-powered interviewer that can generate questions, evaluate answers, and provide personalized feedback.
+InterviewIQ addresses this problem by providing an AI-powered interviewer that can generate relevant questions, evaluate responses, and provide personalized feedback.
 
 ---
 
@@ -71,7 +76,7 @@ Users can practice different types of interviews:
 
 Users can upload their resume and generate an interview based on the information in their resume.
 
-The system can use the uploaded resume to create relevant questions and simulate a resume-focused interview.
+The platform uses the uploaded resume to create relevant questions and simulate a resume-focused interview.
 
 ### AI Feedback
 
@@ -88,7 +93,7 @@ After completing an interview, InterviewIQ provides:
 
 ### Dashboard
 
-The dashboard provides an overview of the user's interview performance.
+The dashboard provides an overview of interview performance.
 
 It includes:
 
@@ -97,7 +102,7 @@ It includes:
 - Highest score
 - Latest score
 - Recent interviews
-- Quick access to start a new interview
+- Start interview option
 - Interview history
 
 ### Interview History
@@ -106,7 +111,7 @@ Users can:
 
 - View previous interviews
 - View interview scores
-- View interview details
+- View detailed interview results
 - Review AI feedback
 - Review previous questions and answers
 
@@ -116,35 +121,38 @@ Users can:
 
 ```text
 User
-  │
-  ▼
+  |
+  v
 Create Account / Login
-  │
-  ▼
+  |
+  v
 Choose Interview Type
-  │
-  ├── Technical
-  ├── DSA
-  ├── HR
-  └── Resume-Based
-          │
-          ▼
-    Generate Questions
-          │
-          ▼
-     Answer Questions
-          │
-          ▼
-       AI Evaluation
-          │
-          ▼
-    Generate Feedback
-          │
-          ▼
-     Calculate Scores
-          │
-          ▼
-     Store in MongoDB
-          │
-          ▼
- Dashboard / History
+  |
+  +---- Technical
+  |
+  +---- DSA
+  |
+  +---- HR
+  |
+  +---- Resume-Based
+            |
+            v
+      Generate Questions
+            |
+            v
+       Answer Questions
+            |
+            v
+        AI Evaluation
+            |
+            v
+       Generate Feedback
+            |
+            v
+        Calculate Scores
+            |
+            v
+       Store in MongoDB
+            |
+            v
+      Dashboard / History
