@@ -1,16 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
 .dashboard-container {
-    min-height: 100vh;
-    background: #eeeef1;
-    background-image: linear-gradient(#d9dbe1 1px, transparent 1px);
-    background-size: 100% 44px;
+    min-height: calc(100vh - 66px);
+    background: var(--paper);
 
     padding: 48px 24px 60px;
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 
-    color: #1b2430;
+    color: var(--ink);
 }
 
 .dashboard-content {
@@ -29,21 +25,22 @@
     padding-bottom: 22px;
     margin-bottom: 24px;
 
-    border-bottom: 2px solid #1b2430;
+    border-bottom: 2px solid var(--ink);
 }
 
 .welcome-area h1 {
     margin: 0;
 
-    font-family: 'Source Serif 4', Georgia, serif;
-    font-size: 34px;
+    font-family: var(--serif);
+    font-size: clamp(38px, 5vw, 64px);
+    letter-spacing: -.055em;
     font-weight: 600;
 }
 
 .welcome-area p {
     margin: 8px 0 0;
 
-    color: #5b6472;
+    color: var(--muted);
 
     font-size: 12px;
 }
@@ -59,10 +56,10 @@
     height: 40px;
     padding: 0 18px;
 
-    background: #1f6f5c;
+    background: var(--accent);
     color: white;
 
-    border: 1px solid #1f6f5c;
+    border: 1px solid var(--accent);
     border-radius: 2px;
 
     font-size: 12px;
@@ -71,7 +68,7 @@
 }
 
 .start-interview-btn:hover {
-    background: #175544;
+    background: var(--accent-dark);
 }
 
 
@@ -81,9 +78,9 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 
-    background: white;
+    background: var(--sheet);
 
-    border: 1px solid #d9dbe1;
+    border: 1px solid var(--line);
     border-radius: 2px;
 
     margin-bottom: 40px;
@@ -92,7 +89,7 @@
 .analytics-box {
     padding: 20px 22px;
 
-    border-right: 1px solid #d9dbe1;
+    border-right: 1px solid var(--line);
 }
 
 .analytics-box:last-child {
@@ -102,17 +99,17 @@
 .analytics-box p {
     margin: 0 0 12px;
 
-    color: #5b6472;
+    color: var(--muted);
 
-    font-size: 11px;
-    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: .025em;
     letter-spacing: 1px;
 }
 
 .analytics-box h2 {
     margin: 0;
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
     font-size: 30px;
     font-weight: 600;
@@ -136,7 +133,7 @@
 .section-heading h2 {
     margin: 0;
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
     font-size: 20px;
     font-weight: 600;
@@ -145,7 +142,7 @@
 .section-heading p {
     margin: 5px 0 0;
 
-    color: #5b6472;
+    color: var(--muted);
 
     font-size: 12px;
 }
@@ -155,11 +152,11 @@
 
     background: none;
     border: none;
-    border-bottom: 1px solid #1f6f5c;
+    border-bottom: 1px solid var(--accent);
 
-    color: #1f6f5c;
+    color: var(--accent);
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 
     font-size: 12px;
     font-weight: 600;
@@ -168,16 +165,16 @@
 }
 
 .history-link:hover {
-    color: #175544;
+    color: var(--accent-dark);
 }
 
 
 /* Interview List */
 
 .interview-list {
-    background: white;
+    background: var(--sheet);
 
-    border: 1px solid #d9dbe1;
+    border: 1px solid var(--line);
     border-radius: 2px;
 
     overflow: hidden;
@@ -192,8 +189,8 @@
 
     padding: 14px 22px;
 
-    border-bottom: 1px solid #d9dbe1;
-    border-left: 3px solid #1f6f5c;
+    border-bottom: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
 }
 
 .interview-row:last-child {
@@ -207,7 +204,7 @@
 .interview-row h3 {
     margin: 0 0 5px;
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
     font-size: 16px;
     font-weight: 600;
@@ -216,10 +213,10 @@
 .interview-row p {
     margin: 0;
 
-    color: #5b6472;
+    color: var(--muted);
 
-    font-size: 11px;
-    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: .025em;
 }
 
 .score {
@@ -228,7 +225,7 @@
 }
 
 .score strong {
-    color: #1f6f5c;
+    color: var(--accent);
 
     font-size: 21px;
     font-weight: 600;
@@ -250,9 +247,9 @@
 
     text-align: center;
 
-    color: #5b6472;
+    color: var(--muted);
 
-    font-size: 13px;
+    font-size: 15px;
 }
 
 
@@ -265,7 +262,7 @@
     margin-top: 30px;
     padding-top: 22px;
 
-    border-top: 1px solid #d9dbe1;
+    border-top: 1px solid var(--line);
 }
 
 .primary-button,
@@ -277,7 +274,7 @@
 
     border-radius: 2px;
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 
     font-size: 12px;
     font-weight: 600;
@@ -289,10 +286,10 @@
 /* Start */
 
 .primary-button {
-    background: #1f6f5c;
+    background: var(--accent);
     color: white;
 
-    border: 1px solid #1f6f5c;
+    border: 1px solid var(--accent);
 
     text-decoration: none;
 
@@ -302,7 +299,7 @@
 }
 
 .primary-button:hover {
-    background: #175544;
+    background: var(--accent-dark);
 }
 
 
@@ -310,13 +307,13 @@
 
 .secondary-button {
     background: transparent;
-    color: #1b2430;
+    color: var(--ink);
 
-    border: 1px solid #1b2430;
+    border: 1px solid var(--ink);
 }
 
 .secondary-button:hover {
-    background: #1b2430;
+    background: var(--ink);
     color: white;
 }
 
@@ -324,6 +321,8 @@
 /* Logout */
 
 .logout-button {
+    flex: none;
+    padding-inline: 18px;
     background: transparent;
     color: #a83b2e;
 
@@ -350,7 +349,7 @@
 
     .analytics-box:nth-child(1),
     .analytics-box:nth-child(2) {
-        border-bottom: 1px solid #d9dbe1;
+        border-bottom: 1px solid var(--line);
     }
 
 }
@@ -370,7 +369,7 @@
     }
 
     .welcome-area h1 {
-        font-size: 27px;
+        font-size: 38px;
     }
 
     .start-interview-btn {

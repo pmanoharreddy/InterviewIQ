@@ -2,11 +2,11 @@ import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import hero from "../assets/hero.png";
+import QuestionDeck from "../components/QuestionDeck";
 import axios from "axios";
 import Loader from "../components/Loader/Loader";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 const initialErrors = {
     email: "",
@@ -75,6 +75,7 @@ function Login() {
 
         e.preventDefault();
 
+        if (loading) return;
         const { validationErrors, isValid } = validateForm();
 
         setErrors(validationErrors);
@@ -87,15 +88,13 @@ function Login() {
 
             setLoading(true);
 
-            const response = await axios.post(
+            await axios.post(
                 `${API_URL}/api/auth/login`,
                 formData,
                 {
                     withCredentials: true,
                 }
             );
-
-            console.log(response.data);
 
             setFormData(initialFormData);
             setErrors(initialErrors);
@@ -104,12 +103,10 @@ function Login() {
 
         } catch (err) {
 
-            console.log(err.response?.data || err.message);
-
-            alert(
-                err.response?.data?.message ||
-                "Something went wrong"
-            );
+            setErrors(prev => ({
+                ...prev,
+                form: err.response?.data?.message || "Could not reach InterviewIQ. Please try again.",
+            }));
 
         } finally {
 
@@ -128,38 +125,15 @@ function Login() {
 
         <section className="signup">
 
-            <Link to="/" className="auth-logo">
+            <Link to="/" className="auth-logo wordmark">
                 InterviewIQ
             </Link>
 
             <div className="signup-container">
 
-                <div className="signup-image">
-
-                    <div className="image-content">
-
-                        <h2>Welcome Back.</h2>
-
-                        <p>
-                            Continue your AI interview preparation and track your progress towards your dream job.
-                        </p>
-
-                        <img
-                            src={hero}
-                            alt="InterviewIQ"
-                        />
-
-                    </div>
-
-                </div>
-
                 <div className="signup-form">
-
-                    <h1>Login</h1>
-
-                    <p>
-                        Sign in to continue your interview preparation journey.
-                    </p>
+                    <h1>Sign in</h1>
+                    <p>Open your practice history or start a new interview.</p>
 
                     <form onSubmit={handleSubmit}>
 
@@ -226,11 +200,13 @@ function Login() {
                             </p>
                         }
 
+                        {errors.form && <p className="error" role="alert">{errors.form}</p>}
                         <button
+                            disabled={loading}
                             type="submit"
                             className="signup-btn"
                         >
-                            Login
+                            Sign in
                         </button>
 
                     </form>
@@ -240,15 +216,14 @@ function Login() {
                         Don't have an account?
 
                         <Link to="/signup">
-                            Sign Up
+                            Create an account
                         </Link>
 
                     </p>
 
                 </div>
-
+                <aside className="auth-samples"><QuestionDeck /></aside>
             </div>
-
         </section>
 
     );

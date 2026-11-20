@@ -1,17 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
-
 .interview-container {
-    min-height: 100vh;
+    min-height: calc(100vh - 66px);
 
-    background: #eeeef1;
-
-    background-image: linear-gradient(
-        #d9dbe1 1px,
-        transparent 1px
-    );
-
-    background-size: 100% 44px;
+    background: var(--paper);
 
     display: flex;
     justify-content: center;
@@ -19,7 +9,7 @@
 
     padding: 20px;
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 }
 
 
@@ -31,9 +21,9 @@
 
     padding: 36px;
 
-    background: white;
+    background: var(--sheet);
 
-    border: 1px solid #d9dbe1;
+    border: 1px solid var(--line);
     border-radius: 2px;
 }
 
@@ -43,12 +33,14 @@
 .interview-card h1 {
     margin: 0 0 8px;
 
-    color: #1b2430;
+    color: var(--ink);
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
-    font-size: 26px;
-    font-weight: 600;
+    font-size: clamp(31px, 4vw, 44px);
+    line-height: 1.07;
+    letter-spacing: -.05em;
+    font-weight: 400;
 }
 
 .subtitle {
@@ -56,11 +48,11 @@
 
     padding-bottom: 22px;
 
-    color: #5b6472;
+    color: var(--muted);
 
-    font-size: 13px;
+    font-size: 15px;
 
-    border-bottom: 2px solid #1b2430;
+    border-bottom: 2px solid var(--ink);
 }
 
 
@@ -76,25 +68,25 @@
 .form-group label {
     margin-bottom: 9px;
 
-    color: #5b6472;
+    color: var(--muted);
 
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
 
-    text-transform: uppercase;
+    letter-spacing: .025em;
 }
 
 .form-group select,
 .form-group input[type="file"] {
     padding: 11px 12px;
 
-    background: white;
-    color: #1b2430;
+    background: var(--sheet);
+    color: var(--ink);
 
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
+    font-family: var(--sans);
+    font-size: 15px;
 
-    border: 1px solid #d9dbe1;
+    border: 1px solid var(--line);
     border-radius: 2px;
 
     outline: none;
@@ -102,14 +94,14 @@
 
 .form-group select:focus,
 .form-group input[type="file"]:focus {
-    border-color: #1f6f5c;
+    border-color: var(--accent);
 }
 
 
 /* File input */
 
 .form-group input[type="file"] {
-    color: #5b6472;
+    color: var(--muted);
 
     font-size: 12px;
 }
@@ -120,23 +112,23 @@
     padding: 7px 12px;
 
     background: transparent;
-    color: #1b2430;
+    color: var(--ink);
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
 
-    text-transform: uppercase;
+    letter-spacing: .025em;
 
-    border: 1px solid #1b2430;
+    border: 1px solid var(--ink);
     border-radius: 2px;
 
     cursor: pointer;
 }
 
 .form-group input[type="file"]::file-selector-button:hover {
-    background: #1b2430;
+    background: var(--ink);
     color: white;
 }
 
@@ -156,30 +148,30 @@
 
     gap: 10px;
 
-    background: #1f6f5c;
+    background: var(--accent);
     color: white;
 
-    border: 1px solid #1f6f5c;
+    border: 1px solid var(--accent);
     border-radius: 2px;
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 
     font-size: 12px;
     font-weight: 600;
 
-    text-transform: uppercase;
+    letter-spacing: .025em;
 
     cursor: pointer;
 }
 
 .start-btn:hover {
-    background: #175544;
-    border-color: #175544;
+    background: var(--accent-dark);
+    border-color: var(--accent-dark);
 }
 
 .start-btn:disabled {
-    background: #5b6472;
-    border-color: #5b6472;
+    background: var(--muted);
+    border-color: var(--muted);
 
     cursor: not-allowed;
 }

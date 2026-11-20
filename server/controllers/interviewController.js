@@ -5,41 +5,41 @@ const {
 } = require("../services/geminiService");
 const Interview = require("../models/Interview");
 const pdf = require("pdf-parse");
+const { Types } = require("mongoose");
+
+const hasText = value => typeof value === "string" && value.trim().length > 0;
+const validTurns = turns => Array.isArray(turns) &&
+    turns.every(turn => hasText(turn?.question) && hasText(turn?.answer));
+
+function validSettings({ interviewType, role, difficulty, experience }) {
+    return ["HR", "Technical", "DSA", "Resume"].includes(interviewType) &&
+        hasText(difficulty) && hasText(experience) &&
+        (interviewType !== "Technical" || hasText(role));
+}
 
 
 
 exports.startInterview = async (req, res) => {
     try {
-        console.log("Body:", req.body);
-        console.log("File:", req.file);
-        const {
-            interviewType,
-            role,
-            experience,
-            difficulty,
-        } = req.body || {};
+        const settings = req.body || {};
+        if (!validSettings(settings)) {
+            return res.status(400).json({ success: false, message: "Choose an interview type, experience and difficulty, and a role for technical interviews." });
+        }
+        const { interviewType, role, experience, difficulty } = settings;
         let resumeText = "";
-
-        if (interviewType === "Resume" && req.file) {
-            const data = await pdf(req.file.buffer);
-            resumeText = data.text;
-
-            console.log("Resume Text:");
-            console.log(resumeText);
-        }
-
-        if (!interviewType || !experience || !difficulty) {
-            return res.status(400).json({
-                success: false,
-                message: "Please fill all required fields.",
-            });
-        }
-
-        if (interviewType === "Technical" && !role) {
-            return res.status(400).json({
-                success: false,
-                message: "Role is required for Technical Interview.",
-            });
+        if (interviewType === "Resume") {
+            if (req.file?.buffer.subarray(0, 5).toString() !== "%PDF-") {
+                return res.status(400).json({ success: false, message: "Upload your resume as a PDF." });
+            }
+            try {
+                const data = await pdf(req.file.buffer);
+                resumeText = data.text.trim();
+            } catch {
+                return res.status(400).json({ success: false, message: "This PDF could not be read. Upload an unlocked, text-based PDF." });
+            }
+            if (!resumeText || resumeText.length > 20000) {
+                return res.status(400).json({ success: false, message: "Use a PDF with selectable text and at most 20,000 characters." });
+            }
         }
 
         const question = await generateInterviewQuestion(
@@ -52,12 +52,13 @@ exports.startInterview = async (req, res) => {
 
         return res.status(200).json({
             success: true,
+            interviewId: new Types.ObjectId(),
             question,
             resumeText,
         });
 
     } catch (error) {
-        console.error("Start interview error:", error);
+        console.error("Start interview error:", error.name);
 
         if (error.status === 429) {
             return res.status(429).json({
@@ -79,19 +80,20 @@ exports.submitAnswer = async (req, res) => {
         const {
             currentQuestion,
             answer,
-            conversation,
+            conversation = [],
             interviewType,
             role,
             experience,
             difficulty,
             questionNumber,
             resumeText,
-        } = req.body;
+        } = req.body || {};
 
-        if (!currentQuestion || !answer) {
+        if (!validSettings(req.body || {}) || !hasText(currentQuestion) || !hasText(answer) ||
+            !validTurns(conversation) || !Number.isInteger(questionNumber) || questionNumber < 1 || questionNumber > 10) {
             return res.status(400).json({
                 success: false,
-                message: "Question and answer are required"
+                message: "Provide a valid interview, question number and answer."
             });
         }
 
@@ -114,7 +116,7 @@ exports.submitAnswer = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Submit answer error:", error);
+        console.error("Submit answer error:", error.name);
 
         if (error.status === 429) {
             return res.status(429).json({
@@ -132,63 +134,38 @@ exports.submitAnswer = async (req, res) => {
 exports.evaluateInterview = async (req, res) => {
     try {
 
-        const {
-            conversation,
-
-            interviewType,
-
-            role,
-
-            experience,
-
-            difficulty,
-
-        } = req.body;
-
-        if (!conversation || conversation.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Interview conversation is required",
-            });
+        const { interviewId, conversation, interviewType, role, experience, difficulty } = req.body || {};
+        if (!validSettings(req.body || {}) || !validTurns(conversation) || !conversation.length ||
+            (interviewId !== undefined && !Types.ObjectId.isValid(interviewId))) {
+            return res.status(400).json({ success: false, message: "Valid interview settings and answered questions are required." });
         }
 
-        const evaluation = await generateInterviewEvaluation(
-            conversation,
-            interviewType
-        );
+        const filter = { _id: interviewId || new Types.ObjectId(), user: req.user.id };
+        const fields = ["overallScore", "technicalScore", "problemSolvingScore", "communicationScore",
+            "confidenceScore", "strengths", "improvements", "feedback"];
+        const scoreFields = fields.join(" ") + " -_id";
+        const existing = interviewId && await Interview.findOne(filter).select(scoreFields).lean();
+        if (existing) return res.json({ success: true, result: existing });
 
-        await Interview.create({
-            user: req.user.id,
-
-            interviewType,
-
-            role,
-
-            experience,
-
-            difficulty,
-
-            conversation,
-
-            overallScore: evaluation.overallScore,
-            technicalScore: evaluation.technicalScore,
-            problemSolvingScore: evaluation.problemSolvingScore,
-            communicationScore: evaluation.communicationScore,
-            confidenceScore: evaluation.confidenceScore,
-
-            strengths: evaluation.strengths,
-            improvements: evaluation.improvements,
-            feedback: evaluation.feedback,
-        });
-
-        return res.status(200).json({
-            success: true,
-            result: evaluation,
-        });
+        const evaluation = await generateInterviewEvaluation(conversation, interviewType);
+        const record = { interviewType, role, experience, difficulty, conversation };
+        for (const field of fields) record[field] = evaluation[field];
+        // A repeated submission returns the first saved evaluation for this user's session.
+        let result;
+        try {
+            result = await Interview.findOneAndUpdate(filter, { $setOnInsert: record }, {
+                upsert: true, returnDocument: "after", runValidators: true, projection: scoreFields,
+            }).lean();
+        } catch (error) {
+            if (error.code !== 11000) throw error;
+            result = await Interview.findOne(filter).select(scoreFields).lean();
+            if (!result) return res.status(409).json({ success: false, message: "This session could not be saved." });
+        }
+        return res.json({ success: true, result });
 
     } catch (error) {
 
-        console.error("Interview evaluation error:", error);
+        console.error("Interview evaluation error:", error.name);
 
         if (error.status === 429) {
             return res.status(429).json({
@@ -218,7 +195,7 @@ exports.getInterviewHistory = async (req, res) => {
 
     } catch (error) {
 
-        console.error("History error:", error);
+        console.error("History error:", error.name);
 
         return res.status(500).json({
             success: false,
@@ -230,51 +207,35 @@ exports.getInterviewHistory = async (req, res) => {
 exports.getDashboardAnalytics = async (req, res) => {
     try {
 
-        const interviews = await Interview.find({
-            user: req.user.id,
-        }).sort({ createdAt: -1 });
-
-        const totalInterviews = interviews.length;
-
-        const highestScore =
-            totalInterviews > 0
-                ? Math.max(...interviews.map(i => i.overallScore))
-                : 0;
-
-        const averageScore =
-            totalInterviews > 0
-                ? Math.round(
-                    interviews.reduce(
-                        (sum, interview) =>
-                            sum + interview.overallScore,
-                        0
-                    ) / totalInterviews
-                )
-                : 0;
-
-        const latestScore =
-            totalInterviews > 0
-                ? interviews[0].overallScore
-                : 0;
-
-        const recentInterviews = interviews.slice(0, 5);
-
-        return res.status(200).json({
+        const [dashboard] = await Interview.aggregate([
+            { $match: { user: new Types.ObjectId(req.user.id) } },
+            { $sort: { createdAt: -1, _id: -1 } },
+            { $facet: {
+                stats: [{ $group: {
+                    _id: null,
+                    totalInterviews: { $sum: 1 },
+                    averageScore: { $avg: "$overallScore" },
+                    highestScore: { $max: "$overallScore" },
+                    latestScore: { $first: "$overallScore" },
+                } }],
+                recentInterviews: [{ $limit: 5 }],
+            } },
+        ]);
+        const stats = dashboard.stats[0];
+        return res.json({
             success: true,
-
             analytics: {
-                totalInterviews,
-                averageScore,
-                highestScore,
-                latestScore,
+                totalInterviews: stats?.totalInterviews ?? 0,
+                averageScore: Math.round(stats?.averageScore ?? 0),
+                highestScore: stats?.highestScore ?? 0,
+                latestScore: stats?.latestScore ?? 0,
             },
-
-            recentInterviews,
+            recentInterviews: dashboard.recentInterviews,
         });
 
     } catch (error) {
 
-        console.error("Dashboard analytics error:", error);
+        console.error("Dashboard analytics error:", error.name);
 
         return res.status(500).json({
             success: false,

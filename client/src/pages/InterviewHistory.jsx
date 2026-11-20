@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader/Loader";
 import "./InterviewHistory.css";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 function InterviewHistory() {
 
     const [interviews, setInterviews] = useState([]);
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
@@ -30,12 +31,12 @@ function InterviewHistory() {
                 if (response.ok) {
                     setInterviews(data.interviews);
                 } else {
-                    console.error(data.message);
+                    if (response.status === 401) navigate("/login", { replace: true });
+                    else setError(data.message || "Your history could not be loaded.");
                 }
 
-            } catch (error) {
-
-                console.error(error);
+            } catch {
+                setError("Your history could not be loaded. Check your connection and try again.");
 
             } finally {
 
@@ -47,7 +48,7 @@ function InterviewHistory() {
 
         fetchHistory();
 
-    }, []);
+    }, [navigate]);
 
     if (loading) {
         return (
@@ -71,13 +72,15 @@ function InterviewHistory() {
                 </button>
 
 
-                <h1>Interview History</h1>
+                <h1>Interview history</h1>
 
 
                 {
-                    interviews.length === 0 ? (
+                    error ? <div><p role="alert">{error}</p>
+                        <button className="back-button" onClick={() => window.location.reload()}>Try again</button>
+                    </div> : interviews.length === 0 ? (
 
-                        <p>No interviews found.</p>
+                        <p>Your completed interviews and feedback will appear here.</p>
 
                     ) : (
 

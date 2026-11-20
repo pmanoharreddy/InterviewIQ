@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import axios from "axios";
 import Loader from "./Loader/Loader";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 function PublicRoute({ children }) {
 
@@ -25,7 +25,7 @@ function PublicRoute({ children }) {
 
                 setAuthenticated(true);
 
-            } catch (error) {
+            } catch {
 
                 setAuthenticated(false);
 

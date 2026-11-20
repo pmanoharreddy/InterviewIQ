@@ -1,21 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
-
 .history-container {
-    min-height: 100vh;
+    min-height: calc(100vh - 66px);
 
-    background: #eeeef1;
-
-    background-image: linear-gradient(
-        #d9dbe1 1px,
-        transparent 1px
-    );
-
-    background-size: 100% 44px;
+    background: var(--paper);
 
     padding: 48px 24px 60px;
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 }
 
 
@@ -28,9 +18,9 @@
 
     padding: 36px;
 
-    background: white;
+    background: var(--sheet);
 
-    border: 1px solid #d9dbe1;
+    border: 1px solid var(--line);
     border-radius: 2px;
 }
 
@@ -42,14 +32,16 @@
 
     padding-bottom: 20px;
 
-    color: #1b2430;
+    color: var(--ink);
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
-    font-size: 28px;
-    font-weight: 600;
+    font-size: clamp(31px, 4vw, 44px);
+    line-height: 1.07;
+    letter-spacing: -.05em;
+    font-weight: 400;
 
-    border-bottom: 2px solid #1b2430;
+    border-bottom: 2px solid var(--ink);
 }
 
 
@@ -58,9 +50,9 @@
 .history-card > p {
     padding: 30px 0;
 
-    color: #5b6472;
+    color: var(--muted);
 
-    font-size: 13px;
+    font-size: 15px;
 
     text-align: center;
 }
@@ -78,10 +70,10 @@
 
     margin-bottom: 14px;
 
-    background: white;
+    background: var(--sheet);
 
-    border: 1px solid #d9dbe1;
-    border-left: 3px solid #1f6f5c;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
 
     border-radius: 2px;
 }
@@ -100,9 +92,9 @@
 .history-item h2 {
     margin: 0 0 10px;
 
-    color: #1b2430;
+    color: var(--ink);
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
     font-size: 17px;
     font-weight: 600;
@@ -111,15 +103,15 @@
 .history-item p {
     margin: 5px 0;
 
-    color: #5b6472;
+    color: var(--muted);
 
     font-size: 12px;
 }
 
 .history-item p strong {
-    color: #5b6472;
+    color: var(--muted);
 
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 500;
 }
 
@@ -135,9 +127,9 @@
 .history-score h2 {
     margin: 0 0 14px;
 
-    color: #1f6f5c;
+    color: var(--accent);
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
     font-size: 22px;
     font-weight: 600;
@@ -149,23 +141,23 @@
 .history-score button {
     padding: 10px 16px;
 
-    background: white;
+    background: var(--sheet);
 
-    color: #1b2430;
+    color: var(--ink);
 
-    border: 1px solid #1b2430;
+    border: 1px solid var(--ink);
     border-radius: 2px;
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
 
     cursor: pointer;
 }
 
 .history-score button:hover {
-    background: #1b2430;
+    background: var(--ink);
 
     color: white;
 }
@@ -181,9 +173,9 @@
 
     border: none;
 
-    color: #5b6472;
+    color: var(--muted);
 
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--sans);
 
     font-size: 12px;
 
@@ -191,7 +183,7 @@
 }
 
 .back-button:hover {
-    color: #1b2430;
+    color: var(--ink);
 }
 
 .history-header h1 {
@@ -199,14 +191,14 @@
 
     padding-bottom: 20px;
 
-    color: #1b2430;
+    color: var(--ink);
 
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--serif);
 
     font-size: 28px;
     font-weight: 600;
 
-    border-bottom: 2px solid #1b2430;
+    border-bottom: 2px solid var(--ink);
 }
 
 /* Mobile */

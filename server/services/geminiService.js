@@ -64,13 +64,12 @@ function parseGeminiJSON(text) {
             return JSON.parse(match[0]);
         }
 
-        console.error("Gemini Response:\n", text);
         throw new Error("Failed to parse Gemini JSON.");
     }
 }
 
 // Validate response completeness
-function isResponseComplete(text, expectJSON = false, interviewType = null) {
+function isResponseComplete(text, expectJSON = false, interviewType = null, questionNumber) {
     if (!text || text.trim().length === 0) {
         console.warn("⚠️ Empty response detected");
         return false;
@@ -79,12 +78,19 @@ function isResponseComplete(text, expectJSON = false, interviewType = null) {
     if (expectJSON) {
         try {
             const parsed = parseGeminiJSON(text);
-            // Validate required fields exist
-            if (parsed.type !== undefined || parsed.overallScore !== undefined) {
-                return true;
+            if (!parsed || typeof parsed !== "object") return false;
+            const hasText = value => typeof value === "string" && value.trim().length > 0;
+            if (interviewType === "FOLLOW_UP") {
+                if (parsed.type === "END_INTERVIEW") return questionNumber === 10;
+                const validType = parsed.type === "FOLLOW_UP" ||
+                    (parsed.type === "NEXT_QUESTION" && questionNumber < 10);
+                return validType && hasText(parsed.question);
             }
-            console.warn("⚠️ JSON missing required fields");
-            return false;
+            const scores = ["overallScore", "technicalScore", "problemSolvingScore",
+                "communicationScore", "confidenceScore"];
+            const validList = list => Array.isArray(list) && list.length === 3 && list.every(hasText);
+            return scores.every(key => Number.isInteger(parsed[key]) && parsed[key] >= 0 && parsed[key] <= 100) &&
+                validList(parsed.strengths) && validList(parsed.improvements) && hasText(parsed.feedback);
         } catch {
             console.warn("⚠️ Invalid JSON response");
             return false;
@@ -142,7 +148,8 @@ async function generateGeminiResponse(
     temperature = 0.7,
     maxRetries = 3,
     maxOutputTokens = 2048,
-    interviewType = null
+    interviewType = null,
+    questionNumber
 ) {
     let lastError = null;
 
@@ -165,14 +172,8 @@ async function generateGeminiResponse(
 
             const text = response.text?.trim() || "";
 
-            // Debugging
-            console.log(`\n========== GEMINI RESPONSE (Attempt ${attempt}) ==========`);
-            console.log(text);
-            console.log(`Estimated tokens: ~${Math.ceil(text.split(/\s+/).length * 1.3)}`);
-            console.log("=====================================\n");
-
             // Validate completeness
-            if (!isResponseComplete(text, expectJSON, interviewType)) {
+            if (!isResponseComplete(text, expectJSON, interviewType, questionNumber)) {
                 if (attempt < maxRetries) {
                     console.log(`🔄 Retrying incomplete response (attempt ${attempt + 1}/${maxRetries})...`);
                     await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
@@ -192,8 +193,9 @@ async function generateGeminiResponse(
                 .trim();
 
         } catch (err) {
+            if (err.status === 429) throw err;
             lastError = err;
-            console.error(`❌ Gemini attempt ${attempt}/${maxRetries} failed:`, err.message);
+            console.error(`❌ Gemini attempt ${attempt}/${maxRetries} failed:`, err.name);
 
             if (attempt < maxRetries) {
                 // Exponential backoff
@@ -204,7 +206,7 @@ async function generateGeminiResponse(
         }
     }
 
-    throw new Error(`Gemini failed after ${maxRetries} attempts: ${lastError?.message}`);
+    throw lastError;
 }
 
 async function generateInterviewQuestion(
@@ -225,13 +227,14 @@ async function generateInterviewQuestion(
             "Backend": "REST APIs, microservices, caching, databases, message queues, API design",
             "Frontend": "React/Vue/Angular, state management, performance optimization, responsive design, browser APIs",
             "Full Stack": "Frontend and backend integration, REST APIs, databases, deployment, authentication",
+            "Java": "Java collections, concurrency, JVM memory management, and object-oriented design",
             "DevOps": "CI/CD, Docker, Kubernetes, cloud platforms, monitoring, infrastructure as code",
             "Mobile": "Mobile app architecture, native vs cross-platform, state management, offline support",
             "Data Science": "ML algorithms, data preprocessing, model evaluation, feature engineering",
             "QA": "Testing strategies, automation frameworks, test design, CI/CD integration"
         };
 
-        const topics = roleSpecificTopics[role] || "core computer science concepts";
+        const topics = roleSpecificTopics[role.replace(/ Developer$/, "")] || "core computer science concepts";
 
         prompt = `
 You are an expert software engineering interviewer.
@@ -368,6 +371,7 @@ ${resumeText}
 ========================================
 
 Experience: ${experience}
+Difficulty: ${difficulty}
 
 Rules:
 
@@ -561,8 +565,7 @@ Question priority:
 Rules:
 
 - Never ask generic Java, React, DBMS or DSA questions unless they directly relate to something written in the resume.
-- If InterviewIQ has already been discussed, move to Course Scheduler.
-- If Course Scheduler has already been discussed, move to StayNest.
+- Move to another project named in the resume when the current project has been covered.
 - If projects are finished, move to technical skills.
 - If technical skills are finished, move to certifications and achievements.
 - Never repeat a previously discussed project.
@@ -639,7 +642,8 @@ When the interview is complete:
         config.temperature,
         3,
         config.maxOutputTokens,
-        "FOLLOW_UP"
+        "FOLLOW_UP",
+        questionNumber
     );
 }
 

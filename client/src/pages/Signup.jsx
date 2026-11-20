@@ -2,10 +2,10 @@ import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import hero from "../assets/hero.png";
+import QuestionDeck from "../components/QuestionDeck";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 const initialErrors = {
     fullName: "",
@@ -27,6 +27,7 @@ function Signup() {
 
     const [formData, setFormData] = useState(initialFormData);
     const [errors, setErrors] = useState(initialErrors);
+    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
@@ -85,6 +86,7 @@ function Signup() {
 
         e.preventDefault();
 
+        if (loading) return;
         const { validationErrors, isValid } = validateForm();
 
         setErrors(validationErrors);
@@ -95,15 +97,14 @@ function Signup() {
 
         try {
 
-            const response = await axios.post(
+            setLoading(true);
+            await axios.post(
                 `${API_URL}/api/auth/signup`,
                 formData,
                 {
                     withCredentials: true,
                 }
             );
-
-            console.log(response.data);
 
             setFormData(initialFormData);
             setErrors(initialErrors);
@@ -112,13 +113,13 @@ function Signup() {
 
         } catch (err) {
 
-            console.log(err.response?.data || err.message);
+            setErrors(prev => ({
+                ...prev,
+                form: err.response?.data?.message || "Could not reach InterviewIQ. Please try again.",
+            }));
 
-            alert(
-                err.response?.data?.message ||
-                "Something went wrong"
-            );
-
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -126,46 +127,20 @@ function Signup() {
 
         <section className="signup">
 
-            <Link to="/" className="auth-logo">
+            <Link to="/" className="auth-logo wordmark">
                 InterviewIQ
             </Link>
 
             <div className="signup-container">
 
-                <div className="signup-image">
-
-                    <div className="image-content">
-
-                        <h2>Ace Every Interview.</h2>
-
-                        <p>
-                            Practice realistic AI interviews, receive instant
-                            feedback, and build the confidence to crack your
-                            dream job.
-                        </p>
-
-                        <img
-                            src={hero}
-                            alt="InterviewIQ"
-                        />
-
-                    </div>
-
-                </div>
-
                 <div className="signup-form">
-
-                    <h1>Create Account</h1>
-
-                    <p>
-                        Join InterviewIQ and start practicing smarter with
-                        AI-powered mock interviews.
-                    </p>
+                    <h1>Create an account</h1>
+                    <p>Save your answers and feedback after each interview.</p>
 
                     <form onSubmit={handleSubmit}>
 
                         <label htmlFor="name">
-                            Full Name
+                            Full name
                         </label>
 
                         <input
@@ -250,11 +225,13 @@ function Signup() {
                             </p>
                         }
 
+                        {errors.form && <p className="error" role="alert">{errors.form}</p>}
                         <button
+                            disabled={loading}
                             type="submit"
                             className="signup-btn"
                         >
-                            Create Account
+                            {loading ? "Creating account..." : "Create account"}
                         </button>
 
                     </form>
@@ -264,15 +241,14 @@ function Signup() {
                         Already have an account?
 
                         <Link to="/login">
-                            Login
+                            Sign in
                         </Link>
 
                     </p>
 
                 </div>
-
+                <aside className="auth-samples"><QuestionDeck /></aside>
             </div>
-
         </section>
 
     );

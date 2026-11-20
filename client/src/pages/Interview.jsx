@@ -3,11 +3,12 @@ import "./Interview.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 function Interview() {
     const navigate = useNavigate();
 
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ function Interview() {
     });
 
     const handleChange = (e) => {
+        setError("");
         const { name, value } = e.target;
 
         if (name === "interviewType") {
@@ -42,30 +44,13 @@ function Interview() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.experience || !formData.difficulty) {
-            alert("Please fill all fields");
-            return;
-        }
-
-        if (
-            formData.interviewType === "Technical" &&
-            !formData.role
-        ) {
-            alert("Please select a role");
-            return;
-        }
-        if (
-            formData.interviewType === "Resume" &&
-            !formData.resume
-        ) {
-            alert("Please upload your resume");
+        setError("");
+        if (formData.resume?.size > 5 * 1024 * 1024) {
+            setError("Choose a PDF that is 5 MB or smaller.");
             return;
         }
         try {
             setLoading(true);
-
-            console.log("Sending:", formData);
-
             const data = new FormData();
 
             data.append("interviewType", formData.interviewType);
@@ -82,9 +67,6 @@ function Interview() {
                 data,
                 {
                     withCredentials: true,
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
                 }
             );
 
@@ -92,12 +74,15 @@ function Interview() {
                 state: {
                     firstQuestion: response.data.question,
                     resumeText: response.data.resumeText,
-                    ...formData,
+                    interviewId: response.data.interviewId,
+                    interviewType: formData.interviewType,
+                    experience: formData.experience,
+                    difficulty: formData.difficulty,
+                    role: formData.role,
                 },
             });
         } catch (err) {
-            console.log(err.response?.data || err.message);
-            alert("Failed to start interview. Please try again.");
+            setError(err.response?.data?.message || "Could not start the interview. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -106,38 +91,40 @@ function Interview() {
     return (
         <div className="interview-container">
             <div className="interview-card">
-                <h1>AI Interview</h1>
+                <h1>Set up your interview</h1>
 
                 <p className="subtitle">
-                    Configure your interview and get started.
+                    Choose what you want to practice. Each interview has ten main questions.
                 </p>
 
                 <form onSubmit={handleSubmit}>
                     {/* Interview Type */}
 
                     <div className="form-group">
-                        <label>Interview Type</label>
+                        <label htmlFor="interviewType">Interview Type</label>
 
                         <select
+                            required
+                            id="interviewType"
                             name="interviewType"
                             value={formData.interviewType}
                             onChange={handleChange}
                             disabled={loading}
                         >
                             <option value="Technical">
-                                Technical Interview
+                                Technical
                             </option>
 
                             <option value="DSA">
-                                DSA Interview
+                                Algorithms (DSA)
                             </option>
 
                             <option value="HR">
-                                HR Interview
+                                Behavioral (HR)
                             </option>
 
                             <option value="Resume">
-                                Resume Interview
+                                Resume
                             </option>
                         </select>
                     </div>
@@ -146,9 +133,11 @@ function Interview() {
 
                     {formData.interviewType === "Technical" && (
                         <div className="form-group">
-                            <label>Role</label>
+                            <label htmlFor="role">Role</label>
 
                             <select
+                                required
+                                id="role"
                                 name="role"
                                 value={formData.role}
                                 onChange={handleChange}
@@ -178,28 +167,32 @@ function Interview() {
                     )}
                     {formData.interviewType === "Resume" && (
                         <div className="form-group">
-                            <label>Upload Resume (PDF/DOC/DOCX)</label>
+                            <label htmlFor="resume">Resume (PDF, up to 5 MB)</label>
 
                             <input
+                                id="resume"
+                                aria-describedby="resume-help"
+                                required
                                 type="file"
-                                accept=".pdf,.doc,.docx"
+                                accept=".pdf,application/pdf"
                                 disabled={loading}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        resume: e.target.files[0],
-                                    })
-                                }
+                                onChange={(e) => {
+                                    setError("");
+                                    setFormData({ ...formData, resume: e.target.files[0] });
+                                }}
                             />
+                            <small id="resume-help">Choose a PDF with selectable text, up to 20,000 characters.</small>
                         </div>
                     )}
 
                     {/* Experience */}
 
                     <div className="form-group">
-                        <label>Experience</label>
+                        <label htmlFor="experience">Experience</label>
 
                         <select
+                            required
+                            id="experience"
                             name="experience"
                             value={formData.experience}
                             onChange={handleChange}
@@ -226,9 +219,11 @@ function Interview() {
                     {/* Difficulty */}
 
                     <div className="form-group">
-                        <label>Difficulty</label>
+                        <label htmlFor="difficulty">Difficulty</label>
 
                         <select
+                            required
+                            id="difficulty"
                             name="difficulty"
                             value={formData.difficulty}
                             onChange={handleChange}
@@ -252,6 +247,7 @@ function Interview() {
                         </select>
                     </div>
 
+                    {error && <p className="error" role="alert">{error}</p>}
                     <button
                         type="submit"
                         className="start-btn"

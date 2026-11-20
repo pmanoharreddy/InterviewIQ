@@ -1,133 +1,69 @@
 import { useState } from "react";
 import "./InterviewSession.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader/Loader";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 function InterviewSession() {
 
     const location = useLocation();
     const navigate = useNavigate();
 
-    const {
-        firstQuestion,
-        interviewType,
-        role,
-        topic,
-        experience,
-        difficulty,
-        resumeText,
-    } = location.state || {};
-
+    const session = location.state || {};
+    const { firstQuestion, interviewId, interviewType, role, topic, experience, difficulty, resumeText,
+        currentQuestion = firstQuestion, questionNumber = 1, conversation = [], evaluationPending = false } = session;
     const [answer, setAnswer] = useState("");
-    const [currentQuestion, setCurrentQuestion] = useState(firstQuestion);
-
-    const [questionNumber, setQuestionNumber] = useState(5);
-
-    const [conversation, setConversation] = useState([]);
-
-    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const [loadingMessage, setLoadingMessage] = useState("");
+    const loading = Boolean(loadingMessage);
+
+    const saveProgress = progress => navigate(location.pathname, {
+        replace: true, state: { ...session, ...progress },
+    });
+
+    const evaluate = async turns => {
+        setLoadingMessage("Preparing your feedback...");
+        const { data } = await axios.post(`${API_URL}/api/interview/evaluate`, {
+            interviewId, interviewType, role, experience, difficulty, conversation: turns,
+        }, { withCredentials: true });
+        navigate("/interview-result", { replace: true, state: { result: data.result } });
+    };
 
     const handleSubmit = async () => {
-
-        if (!answer.trim()) return;
-
+        if (loading || (!evaluationPending && !answer.trim())) return;
+        setError("");
         try {
-
-            setLoading(true);
-            setLoadingMessage("Analyzing your answer...");
-
-            const response = await axios.post(
-                `${API_URL}/api/interview/answer`,
-                {
-                    currentQuestion,
-                    answer,
-                    conversation,
-                    interviewType,
-                    role,
-                    topic,
-                    experience,
-                    difficulty,
-                    questionNumber,
-                    resumeText,
-                },
-                {
-                    withCredentials: true,
-                }
-            );
-
-            const data = response.data;
-
-            const updatedConversation = [
-                ...conversation,
-                {
-                    question: currentQuestion,
-                    answer,
-                },
-            ];
-
-            setConversation(updatedConversation);
-
-            if (data.type === "END_INTERVIEW") {
-
-                setLoadingMessage("Evaluating your interview...");
-
-                const evaluationResponse = await axios.post(
-                    `${API_URL}/api/interview/evaluate`,
-                    {
-                        interviewType,
-                        role,
-                        topic,
-                        experience,
-                        difficulty,
-                        conversation: updatedConversation,
-                    },
-                    {
-                        withCredentials: true,
-                    }
-                );
-
-                const evaluationData = evaluationResponse.data;
-
-                setLoading(false);
-
-                navigate("/interview-result", {
-                    state: {
-                        result: evaluationData.result,
-                    },
-                });
-
+            if (evaluationPending) {
+                await evaluate(conversation);
                 return;
             }
-
-            setCurrentQuestion(data.nextQuestion);
-
-            if (data.type === "NEXT_QUESTION") {
-                setQuestionNumber((prev) => prev + 1);
-            }
-
-            setAnswer("");
-
-            setLoading(false);
-
-        } catch (error) {
-
-            setLoading(false);
-
-            if (error.response) {
-                console.error(error.response.data.message);
-                alert(error.response.data.message);
+            setLoadingMessage("Reviewing your answer...");
+            const { data } = await axios.post(`${API_URL}/api/interview/answer`, {
+                currentQuestion, answer, conversation: conversation.slice(-4), interviewType, role,
+                experience, difficulty, questionNumber, resumeText,
+            }, { withCredentials: true });
+            const turns = [...conversation, { question: currentQuestion, answer }];
+            if (data.type === "END_INTERVIEW") {
+                saveProgress({ conversation: turns, evaluationPending: true });
+                await evaluate(turns);
             } else {
-                console.error(error.message);
-                alert("Something went wrong.");
+                saveProgress({
+                    conversation: turns, currentQuestion: data.nextQuestion,
+                    questionNumber: data.type === "NEXT_QUESTION" ? questionNumber + 1 : questionNumber,
+                    followUp: data.type === "FOLLOW_UP",
+                });
+                setAnswer("");
             }
-
+        } catch (err) {
+            setError(err.response?.data?.message || "The request could not finish. Try again.");
+        } finally {
+            setLoadingMessage("");
         }
-
     };
+
+    if (!firstQuestion) return <Navigate to="/interview" replace />;
 
     if (loading) {
         return <Loader message={loadingMessage} />;
@@ -144,7 +80,7 @@ function InterviewSession() {
                     <h1>InterviewIQ</h1>
 
                     <span>
-                        Question {questionNumber} / 10
+                        Question {questionNumber} / 10{session.followUp && " - Follow-up"}
                     </span>
 
                 </div>
@@ -185,24 +121,26 @@ function InterviewSession() {
 
                 </div>
 
-                <div className="answer-section">
+                {evaluationPending ? <p>Your answers are ready for evaluation.</p> : <div className="answer-section">
 
-                    <label>Your Answer</label>
+                    <label htmlFor="interview-answer">Your answer</label>
 
                     <textarea
+                        id="interview-answer"
                         placeholder="Type your answer here..."
                         value={answer}
                         onChange={(e) => setAnswer(e.target.value)}
                     />
 
-                </div>
+                </div>}
 
+                {error && <p className="error" role="alert">{error}</p>}
                 <button
                     className="submit-btn"
                     onClick={handleSubmit}
-                    disabled={loading}
+                    disabled={loading || (!evaluationPending && !answer.trim())}
                 >
-                    {loading ? "Please Wait..." : "Submit Answer"}
+                    {evaluationPending ? "Get my feedback" : "Submit answer"}
                 </button>
 
             </div>

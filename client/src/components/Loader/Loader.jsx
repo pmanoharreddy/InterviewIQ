@@ -3,7 +3,7 @@ import "./Loader.css";
 function Loader({ message = "Loading..." }) {
     return (
         <div className="loader-container">
-            <div className="loader-card">
+            <div className="loader-card" role="status">
 
                 <div className="spinner"></div>
 

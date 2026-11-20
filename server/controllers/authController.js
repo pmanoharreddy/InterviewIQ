@@ -7,12 +7,14 @@ const isProduction = process.env.NODE_ENV === "production";
 exports.signup = async (req, res) => {
     try {
 
-        const { fullName, email, password } = req.body;
+        const { fullName, email, password } = req.body || {};
 
-        if (!fullName || !email || !password) {
+        if (typeof fullName !== "string" || !fullName.trim() ||
+            typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
+            typeof password !== "string" || password.trim().length < 8 || Buffer.byteLength(password) > 72) {
             return res.status(400).json({
                 success: false,
-                message: "All fields are required",
+                message: "Enter your name, a valid email, and a password of at least 8 characters and at most 72 bytes.",
             });
         }
 
@@ -63,7 +65,10 @@ exports.signup = async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        if (err.code === 11000) {
+            return res.status(409).json({ success: false, message: "User already exists" });
+        }
+        console.error("Authentication error:", err.name);
 
         return res.status(500).json({
             success: false,
@@ -76,9 +81,9 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
     try {
 
-        const { email, password } = req.body;
+        const { email, password } = req.body || {};
 
-        if (!email || !password) {
+        if (typeof email !== "string" || !email.trim() || typeof password !== "string" || !password) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required",
@@ -88,9 +93,9 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json({
+            return res.status(401).json({
                 success: false,
-                message: "User doesn't exist",
+                message: "Invalid credentials",
             });
         }
 
@@ -136,7 +141,7 @@ exports.login = async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Authentication error:", err.name);
 
         return res.status(500).json({
             success: false,
@@ -162,7 +167,7 @@ exports.logout = async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Authentication error:", err.name);
 
         return res.status(500).json({
             success: false,

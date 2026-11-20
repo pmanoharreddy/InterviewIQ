@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import "./InterviewResult.css";
 
 function InterviewResult() {
@@ -6,28 +6,8 @@ function InterviewResult() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const result = location.state?.result || {
-        overallScore: 78,
-        technicalScore: 82,
-        problemSolvingScore: 76,
-        communicationScore: 74,
-        confidenceScore: 80,
-
-        strengths: [
-            "Good understanding of REST APIs",
-            "Strong Node.js and Express fundamentals",
-            "Explains technical concepts clearly",
-        ],
-
-        improvements: [
-            "Improve database optimization knowledge",
-            "Explain time and space complexity more clearly",
-            "Practice discussing edge cases",
-        ],
-
-        feedback:
-            "You demonstrated solid full-stack development fundamentals. Focus on optimization, edge cases, and deeper database concepts to improve your interview performance.",
-    };
+    const result = location.state?.result;
+    if (!result) return <Navigate to="/history" replace />;
 
     return (
 
@@ -35,10 +15,10 @@ function InterviewResult() {
 
             <div className="result-card">
 
-                <h1>Interview Complete</h1>
+                <h1>Your interview notes</h1>
 
                 <p className="result-subtitle">
-                    Here's how you performed
+                    Scores and feedback from this session.
                 </p>
 
                 <div className="overall-score">
@@ -118,7 +98,7 @@ function InterviewResult() {
                     <button
                         onClick={() => navigate("/interview")}
                     >
-                        Try Again
+                        New interview
                     </button>
 
                 </div>

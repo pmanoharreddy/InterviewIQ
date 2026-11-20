@@ -11,7 +11,6 @@ const interviewRoutes = require("./routes/interviewRoutes");
 
 const app = express();
 
-connectDB();
 
 // Trust proxy (Required for Render)
 app.set("trust proxy", 1);
@@ -24,6 +23,7 @@ app.use(
     })
 );
 
+app.use("/api/interview", express.json({ limit: "1mb" }));
 app.use(express.json());
 
 app.use(express.urlencoded({
@@ -53,6 +53,6 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+connectDB().then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });

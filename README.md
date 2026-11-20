@@ -156,3 +156,62 @@ Choose Interview Type
             |
             v
       Dashboard / History
+```
+
+---
+
+## Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/pmanoharreddy/InterviewIQ.git
+```
+
+From the repository root, start the frontend
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+In a second terminal at the repository root, configure the server environment below and start the backend
+
+```bash
+cd server
+npm install
+npm start
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file inside the server folder.
+
+```env
+PORT=5000
+
+MONGO_URL=your_mongodb_uri
+
+JWT_SECRET=your_secret_key
+
+GEMINI_API_KEY=your_gemini_api_key
+
+CLIENT_URL=http://localhost:5173
+```
+
+---
+
+The development client uses `http://localhost:5000` by default. For a separately hosted API, set `VITE_API_URL` in the client build environment to the backend origin and set `CLIENT_URL` on the server to the frontend origin. Use `NODE_ENV=production` for HTTPS deployments.
+
+## Project checks
+
+From the repository root, run the client lint check, build the production client, and test the interview API with simulated AI and database responses.
+
+```bash
+npm --prefix client run lint
+npm --prefix client run build
+npm --prefix server test
+```

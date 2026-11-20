@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Loader from "../components/Loader/Loader";
 import "./Dashboard.css";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config";
 
 function Dashboard() {
 
@@ -13,6 +13,7 @@ function Dashboard() {
     const [user, setUser] = useState(null);
     const [analytics, setAnalytics] = useState(null);
     const [recentInterviews, setRecentInterviews] = useState([]);
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
 
 
@@ -47,9 +48,8 @@ function Dashboard() {
 
             } catch (error) {
 
-                console.log(error);
-
-                navigate("/login");
+                if (error.response?.status === 401) navigate("/login", { replace: true });
+                else setError("Your dashboard could not be loaded.");
 
             } finally {
 
@@ -78,9 +78,9 @@ function Dashboard() {
 
             navigate("/login");
 
-        } catch (error) {
+        } catch {
 
-            console.log(error);
+            setError("Logout failed. Please try again.");
 
         }
 
@@ -92,6 +92,11 @@ function Dashboard() {
     }
 
 
+    if (error) return <main className="dashboard-container"><div className="dashboard-content">
+        <p role="alert">{error}</p>
+        <button className="secondary-button" onClick={() => window.location.reload()}>Reload dashboard</button>
+    </div></main>;
+
     return (
 
         <div className="dashboard-container">
@@ -102,8 +107,8 @@ function Dashboard() {
 
                 <div className="dashboard-header">
 
-                    <div>
-                        <h1>Welcome back</h1>
+                    <div className="welcome-area">
+                        <h1>Practice journal</h1>
 
                         <p>{user?.email}</p>
                     </div>
@@ -112,7 +117,7 @@ function Dashboard() {
                         to="/interview"
                         className="start-interview-btn"
                     >
-                        Start Interview
+                        New interview
                     </Link>
 
                 </div>
@@ -123,7 +128,7 @@ function Dashboard() {
                 <div className="analytics-grid">
 
                     <div className="analytics-box">
-                        <p>Total Interviews</p>
+                        <p>Interviews completed</p>
                         <h2>
                             {analytics?.totalInterviews || 0}
                         </h2>
@@ -131,32 +136,32 @@ function Dashboard() {
 
 
                     <div className="analytics-box">
-                        <p>Average Score</p>
+                        <p>Average score</p>
                         <h2>
-                            {analytics?.averageScore || 0}
+                            {analytics?.totalInterviews ? analytics.averageScore : "—"}
                         </h2>
                     </div>
 
 
                     <div className="analytics-box">
-                        <p>Highest Score</p>
+                        <p>Highest score</p>
                         <h2>
-                            {analytics?.highestScore || 0}
+                            {analytics?.totalInterviews ? analytics.highestScore : "—"}
                         </h2>
                     </div>
 
 
                     <div className="analytics-box">
-                        <p>Latest Score</p>
+                        <p>Latest score</p>
                         <h2>
-                            {analytics?.latestScore || 0}
+                            {analytics?.totalInterviews ? analytics.latestScore : "—"}
                         </h2>
                     </div>
 
                 </div>
 
 
-                {/* Recent Interviews */}
+                {/* Recent interviews */}
 
                 <div className="recent-section">
 
@@ -164,11 +169,7 @@ function Dashboard() {
 
                         <div>
 
-                            <h2>Recent Interviews</h2>
-
-                            <p>
-                                Your latest interview performance
-                            </p>
+                            <h2>Recent interviews</h2>
 
                         </div>
 
@@ -188,7 +189,7 @@ function Dashboard() {
                         {recentInterviews.length === 0 ? (
 
                             <div className="empty-message">
-                                No interviews yet.
+                                Your first completed interview will appear here.
                             </div>
 
                         ) : (
@@ -249,27 +250,11 @@ function Dashboard() {
 
                 <div className="dashboard-buttons">
 
-                    <Link
-                        to="/interview"
-                        className="primary-button"
-                    >
-                        Start Interview
-                    </Link>
-
-
-                    <button
-                        onClick={() => navigate("/history")}
-                        className="secondary-button"
-                    >
-                        Interview History
-                    </button>
-
-
                     <button
                         onClick={handleLogout}
                         className="logout-button"
                     >
-                        Logout
+                        Sign out
                     </button>
 
                 </div>

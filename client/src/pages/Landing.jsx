@@ -7,9 +7,11 @@ function Landing(){
     return(
         <>
             <Navbar/>
-            <Hero/>
-            <Features/>
-            <HowItWorks/>
+            <main>
+                <Hero/>
+                <Features/>
+                <HowItWorks/>
+            </main>
             <Footer/>
         </>
     )

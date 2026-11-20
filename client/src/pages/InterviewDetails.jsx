@@ -15,7 +15,7 @@ function InterviewDetails() {
                 <h2>No Interview Found</h2>
 
                 <button
-                    onClick={() => navigate("/InterviewHistory")}
+                    onClick={() => navigate("/history")}
                 >
                     Back to History
                 </button>
@@ -42,7 +42,7 @@ function InterviewDetails() {
                 <div className="top-section">
 
                     <p>
-                        <strong>Role:</strong> {interview.role}
+                        <strong>Interview:</strong> {interview.role || interview.interviewType}
                     </p>
 
                     <p>
