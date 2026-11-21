@@ -1,62 +1,33 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
-import Loader from "./Loader/Loader";
-
 import { API_URL } from "../config";
 
 function PublicRoute({ children }) {
-
-    const [loading, setLoading] = useState(true);
     const [authenticated, setAuthenticated] = useState(false);
 
     useEffect(() => {
+        const controller = new AbortController();
 
-        const checkAuth = async () => {
-
+        async function checkSession() {
             try {
-
-                await axios.get(
-                    `${API_URL}/api/auth/profile`,
-                    {
-                        withCredentials: true,
-                    }
-                );
-
-                setAuthenticated(true);
-
+                const { data } = await axios.get(`${API_URL}/api/auth/profile`, {
+                    withCredentials: true,
+                    signal: controller.signal,
+                });
+                if (!controller.signal.aborted && data?.user) {
+                    setAuthenticated(true);
+                }
             } catch {
-
-                setAuthenticated(false);
-
-            } finally {
-
-                setLoading(false);
-
+                // Visitors can use public pages even while the API is unavailable.
             }
+        }
 
-        };
-
-        checkAuth();
-
+        checkSession();
+        return () => controller.abort();
     }, []);
 
-    if (loading) {
-        return (
-            <Loader message="Loading..." />
-        );
-    }
-
-    if (authenticated) {
-        return (
-            <Navigate
-                to="/dashboard"
-                replace
-            />
-        );
-    }
-
-    return children;
+    return authenticated ? <Navigate to="/dashboard" replace /> : children;
 }
 
 export default PublicRoute;
